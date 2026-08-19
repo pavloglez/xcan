@@ -1,0 +1,16 @@
+-- Merging decision tree log ---
+manifest
+ADDED from /home/pablo/lab/carSync/feature/dashboard/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest438563795913131782.xml:2:13-83
+INJECTED from /home/pablo/lab/carSync/feature/dashboard/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest438563795913131782.xml:2:13-83
+	package
+		INJECTED from /home/pablo/lab/carSync/feature/dashboard/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest438563795913131782.xml
+	xmlns:android
+		ADDED from /home/pablo/lab/carSync/feature/dashboard/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest438563795913131782.xml:2:23-81
+uses-sdk
+INJECTED from /home/pablo/lab/carSync/feature/dashboard/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest438563795913131782.xml reason: use-sdk injection requested
+INJECTED from /home/pablo/lab/carSync/feature/dashboard/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest438563795913131782.xml
+INJECTED from /home/pablo/lab/carSync/feature/dashboard/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest438563795913131782.xml
+	android:targetSdkVersion
+		INJECTED from /home/pablo/lab/carSync/feature/dashboard/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest438563795913131782.xml
+	android:minSdkVersion
+		INJECTED from /home/pablo/lab/carSync/feature/dashboard/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest438563795913131782.xml
