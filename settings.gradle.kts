@@ -33,3 +33,5 @@ include(":feature:dashboard")
 include(":feature:maintenance")
 include(":feature:config")
 include(":feature:diagnostics")
+include(":feature:logging")
+

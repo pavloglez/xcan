@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -36,13 +37,16 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
@@ -60,6 +64,9 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.withTransform
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -77,6 +84,7 @@ import com.jpdgbv.xcan.core.model.CarProfile
 import com.jpdgbv.xcan.core.model.TelemetryFrame
 import com.jpdgbv.xcan.core.bluetooth.ConnectionStatus
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardRoute(
     viewModel: DashboardViewModel = hiltViewModel()
@@ -87,7 +95,12 @@ fun DashboardRoute(
     var showAddCarDialog by remember { mutableStateOf(false) }
     var showCarSelectDialog by remember { mutableStateOf(false) }
     var showLogsDialog by remember { mutableStateOf(false) }
-    var showConfigDialog by remember { mutableStateOf(false) }
+    var showConfigSheet by remember { mutableStateOf(false) }
+    var showCarPickerForLogging by remember { mutableStateOf(false) }
+
+    val configSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val carPickerSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val scope = rememberCoroutineScope()
 
     val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
         listOf(
@@ -247,56 +260,36 @@ fun DashboardRoute(
         )
     }
 
-    if (showConfigDialog) {
-        var tempSelected by remember { mutableStateOf(state.selectedSensors) }
-        AlertDialog(
-            onDismissRequest = { showConfigDialog = false },
-            title = { Text("Configure Dashboard") },
-            text = {
-                LazyColumn {
-                    items(state.supportedSensors) { sensor ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .bounceClick {
-                                    tempSelected = if (tempSelected.contains(sensor.pid)) {
-                                        tempSelected - sensor.pid
-                                    } else {
-                                        tempSelected + sensor.pid
-                                    }
-                                }
-                                .padding(vertical = 8.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Checkbox(
-                                checked = tempSelected.contains(sensor.pid),
-                                onCheckedChange = null
-                            )
-                            Spacer(Modifier.size(8.dp))
-                            Text(sensor.displayName)
-                        }
-                    }
-                }
+    // Config bottom sheet
+    if (showConfigSheet) {
+        com.jpdgbv.xcan.feature.dashboard.ui.DashboardConfigBottomSheet(
+            allSensors = state.allKnownSensors,
+            selectedPids = state.selectedSensors,
+            sheetState = configSheetState,
+            onToggleSensor = { pid, checked ->
+                val newSet = if (checked) state.selectedSensors + pid else state.selectedSensors - pid
+                viewModel.onIntent(DashboardIntent.SetSelectedSensors(newSet))
             },
-            confirmButton = {
-                Button(onClick = {
-                    viewModel.onIntent(DashboardIntent.SetSelectedSensors(tempSelected))
-                    showConfigDialog = false
-                }) {
-                    Text("Save")
-                }
+            onDismiss = { showConfigSheet = false }
+        )
+    }
+
+    // Car picker for logging
+    if (showCarPickerForLogging) {
+        com.jpdgbv.xcan.feature.dashboard.ui.CarPickerBottomSheet(
+            cars = state.cars,
+            sheetState = carPickerSheetState,
+            onCarSelected = { car ->
+                showCarPickerForLogging = false
+                viewModel.onIntent(DashboardIntent.StartLogging(car.id, car.name))
             },
-            dismissButton = {
-                TextButton(onClick = { showConfigDialog = false }) {
-                    Text("Cancel")
-                }
-            }
+            onDismiss = { showCarPickerForLogging = false }
         )
     }
 
     DashboardScreen(
         state = state,
-        onConnect = { 
+        onConnect = {
             if (hasPermissions) {
                 showDialog = true
                 viewModel.onIntent(DashboardIntent.StartScanning)
@@ -307,7 +300,11 @@ fun DashboardRoute(
         onDisconnect = { viewModel.onIntent(DashboardIntent.Disconnect) },
         onShowCarSelect = { showCarSelectDialog = true },
         onShowLogs = { showLogsDialog = true },
-        onShowConfig = { showConfigDialog = true }
+        onShowConfig = { showConfigSheet = true },
+        onStartLog = { showCarPickerForLogging = true },
+        onPauseLog = { viewModel.onIntent(DashboardIntent.PauseLogging) },
+        onResumeLog = { viewModel.onIntent(DashboardIntent.ResumeLogging) },
+        onStopLog = { viewModel.onIntent(DashboardIntent.StopLogging) }
     )
 }
 
@@ -355,12 +352,20 @@ fun DashboardScreen(
     onDisconnect: () -> Unit,
     onShowCarSelect: () -> Unit,
     onShowLogs: () -> Unit,
-    onShowConfig: () -> Unit
+    onShowConfig: () -> Unit,
+    onStartLog: () -> Unit,
+    onPauseLog: () -> Unit,
+    onResumeLog: () -> Unit,
+    onStopLog: () -> Unit
 ) {
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
             .background(DeepCharcoal)
+    ) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -491,7 +496,21 @@ fun DashboardScreen(
                 Text("Connect OBD-II")
             }
         }
-    }
+    } // end Column
+
+    // Glassmorphism floating log control — bottom-center
+    com.jpdgbv.xcan.feature.dashboard.ui.LogFloatingControl(
+        loggingState = state.loggingState,
+        onPause = onPauseLog,
+        onResume = onResumeLog,
+        onStop = onStopLog,
+        onStartLog = onStartLog,
+        modifier = Modifier
+            .align(Alignment.BottomEnd)
+            .navigationBarsPadding()
+            .padding(end = 16.dp, bottom = 16.dp)
+    )
+    } // end Box
 }
 
 @Composable
@@ -520,38 +539,131 @@ fun TelemetryDial(
             contentAlignment = Alignment.Center
         ) {
             Canvas(modifier = Modifier.fillMaxSize()) {
-            val strokeWidth = 12.dp.toPx()
+            val strokeWidth = 14.dp.toPx()
             val arcSize = size.minDimension - strokeWidth
-            // The arc is drawn from 150 to 390 degrees.
-            // The gap is at the bottom. The lowest point is at sin(30) = 0.5, so the drawn height is 1.5 * radius.
-            // To visually center the drawn arc within the square canvas, we shift it down by 0.25 * radius.
+            val radius = arcSize / 2f
             val verticalShift = arcSize / 8f
             val arcOffset = androidx.compose.ui.geometry.Offset(
                 (size.width - arcSize) / 2f,
                 (size.height - arcSize) / 2f + verticalShift
             )
-            
-            // Background track
-            drawArc(
-                color = Color.DarkGray,
-                startAngle = 150f,
-                sweepAngle = 240f,
-                useCenter = false,
-                style = Stroke(width = strokeWidth, cap = StrokeCap.Round),
-                topLeft = arcOffset,
-                size = Size(arcSize, arcSize)
+            val center = androidx.compose.ui.geometry.Offset(
+                arcOffset.x + radius,
+                arcOffset.y + radius
             )
 
-            // Foreground value
-            drawArc(
-                color = color,
-                startAngle = 150f,
-                sweepAngle = sweepAngle,
-                useCenter = false,
-                style = Stroke(width = strokeWidth, cap = StrokeCap.Round),
-                topLeft = arcOffset,
-                size = Size(arcSize, arcSize)
-            )
+            withTransform({
+                rotate(degrees = 150f, pivot = center)
+            }) {
+                // Background track
+                drawArc(
+                    color = Color.DarkGray.copy(alpha = 0.4f),
+                    startAngle = 0f,
+                    sweepAngle = 240f,
+                    useCenter = false,
+                    style = Stroke(width = strokeWidth, cap = StrokeCap.Butt),
+                    topLeft = arcOffset,
+                    size = Size(arcSize, arcSize)
+                )
+
+                if (sweepAngle > 0.5f) {
+                    val brush = androidx.compose.ui.graphics.Brush.sweepGradient(
+                        0f to color.copy(alpha = 0.0f),
+                        (sweepAngle / 360f) to color,
+                        1.0f to Color.Transparent,
+                        center = center
+                    )
+                    
+                    // Tip coordinates for glow and needle
+                    val currentAngleRadians = Math.toRadians(sweepAngle.toDouble()).toFloat()
+                    val tipX = center.x + radius * kotlin.math.cos(currentAngleRadians)
+                    val tipY = center.y + radius * kotlin.math.sin(currentAngleRadians)
+                    val tipOffset = androidx.compose.ui.geometry.Offset(tipX, tipY)
+
+                    // Clip path to cut the glow strictly at the needle's edge
+                    val glowClipPath = androidx.compose.ui.graphics.Path().apply {
+                        moveTo(center.x, center.y)
+                        val outerRadius = radius + strokeWidth * 10f
+                        arcTo(
+                            rect = androidx.compose.ui.geometry.Rect(
+                                center.x - outerRadius,
+                                center.y - outerRadius,
+                                center.x + outerRadius,
+                                center.y + outerRadius
+                            ),
+                            startAngleDegrees = -30f,
+                            sweepAngleDegrees = sweepAngle + 30f,
+                            forceMoveTo = false
+                        )
+                        close()
+                    }
+
+                    clipPath(glowClipPath) {
+                        // Gradient Glow (Blurred Arc)
+                        drawIntoCanvas { canvas ->
+                            val glowPaint = androidx.compose.ui.graphics.Paint().apply {
+                                this.strokeWidth = strokeWidth * 2f
+                                this.style = androidx.compose.ui.graphics.PaintingStyle.Stroke
+                                this.strokeCap = StrokeCap.Butt
+                            }
+                            glowPaint.asFrameworkPaint().maskFilter = android.graphics.BlurMaskFilter(
+                                strokeWidth * 1.5f,
+                                android.graphics.BlurMaskFilter.Blur.NORMAL
+                            )
+                            brush.applyTo(size, glowPaint, 1f)
+                            
+                            canvas.drawArc(
+                                left = arcOffset.x,
+                                top = arcOffset.y,
+                                right = arcOffset.x + arcSize,
+                                bottom = arcOffset.y + arcSize,
+                                startAngle = 0f,
+                                sweepAngle = sweepAngle,
+                                useCenter = false,
+                                paint = glowPaint
+                            )
+                        }
+
+                        // Tip Glow
+                        val glowRadius = strokeWidth * 3.5f
+                        drawCircle(
+                            brush = androidx.compose.ui.graphics.Brush.radialGradient(
+                                colors = listOf(color.copy(alpha = 0.65f), Color.Transparent),
+                                center = tipOffset,
+                                radius = glowRadius
+                            ),
+                            radius = glowRadius,
+                            center = tipOffset
+                        )
+                    }
+
+                    // Foreground value (gradient)
+                    drawArc(
+                        brush = brush,
+                        startAngle = 0f,
+                        sweepAngle = sweepAngle,
+                        useCenter = false,
+                        style = Stroke(width = strokeWidth, cap = StrokeCap.Butt),
+                        topLeft = arcOffset,
+                        size = Size(arcSize, arcSize)
+                    )
+
+                    // Needle (White line)
+                    val needleLength = strokeWidth * 1.5f
+                    val innerX = center.x + (radius - needleLength / 2f) * kotlin.math.cos(currentAngleRadians)
+                    val innerY = center.y + (radius - needleLength / 2f) * kotlin.math.sin(currentAngleRadians)
+                    val outerX = center.x + (radius + needleLength / 2f) * kotlin.math.cos(currentAngleRadians)
+                    val outerY = center.y + (radius + needleLength / 2f) * kotlin.math.sin(currentAngleRadians)
+
+                    drawLine(
+                        color = Color.White,
+                        start = androidx.compose.ui.geometry.Offset(innerX, innerY),
+                        end = androidx.compose.ui.geometry.Offset(outerX, outerY),
+                        strokeWidth = strokeWidth * 0.35f,
+                        cap = StrokeCap.Round
+                    )
+                }
+            }
         }
 
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -632,7 +744,11 @@ fun DashboardScreenPreview() {
             onDisconnect = {},
             onShowCarSelect = {},
             onShowLogs = {},
-            onShowConfig = {}
+            onShowConfig = {},
+            onStartLog = {},
+            onPauseLog = {},
+            onResumeLog = {},
+            onStopLog = {}
         )
     }
 }

@@ -47,6 +47,7 @@ dependencies {
     implementation(project(":feature:maintenance"))
     implementation(project(":feature:config"))
     implementation(project(":feature:diagnostics"))
+    implementation(project(":feature:logging"))
     
     implementation(platform(libs.androidx.compose.bom))
     implementation("androidx.navigation:navigation-compose:2.7.7")

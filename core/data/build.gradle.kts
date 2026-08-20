@@ -22,6 +22,7 @@ dependencies {
     implementation(project(":core:model"))
     implementation(project(":core:database"))
     implementation(project(":core:network"))
+    implementation(project(":core:bluetooth"))
     
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)

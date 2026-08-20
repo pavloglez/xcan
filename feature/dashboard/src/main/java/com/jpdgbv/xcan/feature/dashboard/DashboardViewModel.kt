@@ -1,15 +1,20 @@
 package com.jpdgbv.xcan.feature.dashboard
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jpdgbv.xcan.core.bluetooth.BleDataSource
 import com.jpdgbv.xcan.core.bluetooth.ConnectionStatus
 import com.jpdgbv.xcan.core.data.CarRepository
+import com.jpdgbv.xcan.core.data.LoggingRepository
+import com.jpdgbv.xcan.core.data.LoggingService
+import com.jpdgbv.xcan.core.data.LoggingState
 import com.jpdgbv.xcan.core.data.UserPreferencesRepository
 import com.jpdgbv.xcan.core.model.CarProfile
 import com.jpdgbv.xcan.core.model.ObdSensor
 import com.jpdgbv.xcan.core.model.TelemetryFrame
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -36,7 +41,8 @@ data class DashboardState(
     val useMetric: Boolean = false,
     val supportedSensors: List<ObdSensor> = emptyList(),
     val selectedSensors: Set<String> = emptySet(),
-    val allKnownSensors: List<ObdSensor> = emptyList()
+    val allKnownSensors: List<ObdSensor> = emptyList(),
+    val loggingState: LoggingState = LoggingState.Idle
 ) {
     val isConnected: Boolean get() = connectionStatus == ConnectionStatus.CONNECTED
     val isConnecting: Boolean get() = connectionStatus == ConnectionStatus.CONNECTING
@@ -51,14 +57,20 @@ sealed interface DashboardIntent {
     data class SelectCar(val id: String) : DashboardIntent
     data class SetSelectedSensors(val sensors: Set<String>) : DashboardIntent
     object ScanSensors : DashboardIntent
+    data class StartLogging(val carId: String, val carLabel: String) : DashboardIntent
+    object PauseLogging : DashboardIntent
+    object ResumeLogging : DashboardIntent
+    object StopLogging : DashboardIntent
 }
 
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val bleDataSource: BleDataSource,
     private val carRepository: CarRepository,
     private val userPreferencesRepository: UserPreferencesRepository,
-    private val sensorRepository: SensorRepository
+    private val sensorRepository: SensorRepository,
+    private val loggingRepository: LoggingRepository
 ) : ViewModel() {
 
     private val _isScanning = MutableStateFlow(false)
@@ -67,6 +79,7 @@ class DashboardViewModel @Inject constructor(
 
     private val _connectionLogs = MutableStateFlow<List<String>>(emptyList())
     private val _supportedSensors = MutableStateFlow<List<ObdSensor>>(emptyList())
+    private val _loggingState = LoggingService.loggingState
 
     init {
         viewModelScope.launch {
@@ -104,8 +117,9 @@ class DashboardViewModel @Inject constructor(
         userPreferencesRepository.useMetric,
         _supportedSensors,
         userPreferencesRepository.selectedSensors,
-        sensorRepository.getSensors()
-    ) { args -> 
+        sensorRepository.getSensors(),
+        _loggingState
+    ) { args ->
         val status = args[0] as ConnectionStatus
         val telemetry = args[1] as? TelemetryFrame
         val logs = args[2] as List<String>
@@ -117,7 +131,8 @@ class DashboardViewModel @Inject constructor(
         val supported = args[8] as List<ObdSensor>
         val selected = args[9] as Set<String>
         val allKnown = args[10] as List<ObdSensor>
-        
+        val loggingState = args[11] as LoggingState
+
         DashboardState(
             connectionStatus = status,
             telemetry = if (status == ConnectionStatus.CONNECTED) telemetry else null,
@@ -129,7 +144,8 @@ class DashboardViewModel @Inject constructor(
             useMetric = useMetric,
             supportedSensors = supported,
             selectedSensors = selected,
-            allKnownSensors = allKnown
+            allKnownSensors = allKnown,
+            loggingState = loggingState
         )
     }.stateIn(
         scope = viewModelScope,
@@ -196,6 +212,32 @@ class DashboardViewModel @Inject constructor(
                 viewModelScope.launch {
                     _supportedSensors.value = bleDataSource.getSupportedSensors()
                 }
+            }
+            is DashboardIntent.StartLogging -> {
+                viewModelScope.launch {
+                    val sessionId = loggingRepository.startSession(intent.carId, intent.carLabel)
+                    val startMs = System.currentTimeMillis()
+                    context.startService(
+                        LoggingService.startIntent(context, sessionId, intent.carLabel, startMs)
+                    )
+                }
+            }
+            DashboardIntent.PauseLogging -> {
+                val current = _loggingState.value as? LoggingState.Recording ?: return
+                context.startService(LoggingService.pauseIntent(context, current.sessionId))
+            }
+            DashboardIntent.ResumeLogging -> {
+                val current = _loggingState.value as? LoggingState.Paused ?: return
+                context.startService(LoggingService.resumeIntent(context, current.sessionId))
+            }
+            DashboardIntent.StopLogging -> {
+                val current = _loggingState.value
+                val sessionId = when (current) {
+                    is LoggingState.Recording -> current.sessionId
+                    is LoggingState.Paused -> current.sessionId
+                    else -> return
+                }
+                context.startService(LoggingService.stopIntent(context, sessionId))
             }
         }
     }

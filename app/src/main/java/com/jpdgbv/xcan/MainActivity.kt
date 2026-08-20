@@ -6,8 +6,11 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.ui.unit.dp
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Build
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Warning
@@ -33,6 +36,8 @@ import com.jpdgbv.xcan.feature.config.ConfigRoute
 import com.jpdgbv.xcan.feature.dashboard.DashboardRoute
 import com.jpdgbv.xcan.feature.maintenance.MaintenanceRoute
 import com.jpdgbv.xcan.feature.diagnostics.DiagnosticsRoute
+import com.jpdgbv.xcan.feature.logging.LogSessionDetailRoute
+import com.jpdgbv.xcan.feature.logging.LogSessionsRoute
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -44,10 +49,12 @@ class MainActivity : ComponentActivity() {
             XCanTheme {
                 val navController = rememberNavController()
 
-                val items = listOf(
+                // Bottom nav items (Sessions replaces nothing — added as 5th tab)
+                val topLevelRoutes = listOf(
                     Triple("dashboard", "Dashboard", Icons.Filled.Home),
                     Triple("diagnostics", "Diagnostics", Icons.Filled.Warning),
                     Triple("maintenance", "Maintenance", Icons.Filled.Build),
+                    Triple("log_sessions", "Sessions", Icons.Filled.History),
                     Triple("config", "Config", Icons.Filled.Settings)
                 )
 
@@ -58,15 +65,30 @@ class MainActivity : ComponentActivity() {
                             val navBackStackEntry by navController.currentBackStackEntryAsState()
                             val currentDestination = navBackStackEntry?.destination
 
-                            items.forEach { (route, label, icon) ->
+                            topLevelRoutes.forEach { (route, label, icon) ->
                                 NavigationBarItem(
-                                    icon = { Icon(icon, contentDescription = label) },
+                                    icon = {
+                                        val isSelected = currentDestination?.hierarchy?.any { it.route == route } == true
+                                        androidx.compose.foundation.layout.Box(contentAlignment = androidx.compose.ui.Alignment.Center) {
+                                            if (isSelected) {
+                                                androidx.compose.foundation.Canvas(modifier = Modifier.size(56.dp)) {
+                                                    drawCircle(
+                                                        brush = androidx.compose.ui.graphics.Brush.radialGradient(
+                                                            colors = listOf(ElectricBlue.copy(alpha = 0.65f), androidx.compose.ui.graphics.Color.Transparent),
+                                                            radius = size.minDimension / 2f
+                                                        )
+                                                    )
+                                                }
+                                            }
+                                            Icon(icon, contentDescription = label)
+                                        }
+                                    },
                                     label = { Text(label) },
                                     selected = currentDestination?.hierarchy?.any { it.route == route } == true,
                                     colors = NavigationBarItemDefaults.colors(
-                                        selectedIconColor = CharcoalSurface,
+                                        selectedIconColor = androidx.compose.ui.graphics.Color.White,
                                         selectedTextColor = ElectricBlue,
-                                        indicatorColor = ElectricBlue,
+                                        indicatorColor = androidx.compose.ui.graphics.Color.Transparent,
                                         unselectedIconColor = LightGrayText,
                                         unselectedTextColor = LightGrayText
                                     ),
@@ -93,6 +115,17 @@ class MainActivity : ComponentActivity() {
                         composable("diagnostics") { DiagnosticsRoute() }
                         composable("maintenance") { MaintenanceRoute() }
                         composable("config") { ConfigRoute() }
+                        composable("log_sessions") {
+                            LogSessionsRoute(
+                                onSessionClick = { sessionId ->
+                                    navController.navigate("log_session_detail/$sessionId")
+                                }
+                            )
+                        }
+                        composable("log_session_detail/{sessionId}") { backStack ->
+                            val sessionId = backStack.arguments?.getString("sessionId") ?: return@composable
+                            LogSessionDetailRoute(sessionId = sessionId)
+                        }
                     }
                 }
             }

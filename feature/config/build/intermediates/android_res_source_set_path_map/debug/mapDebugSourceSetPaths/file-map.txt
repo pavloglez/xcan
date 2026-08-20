@@ -1,9 +1,0 @@
-com.jpdgbv.xcan.feature.config-pngs-0 /home/pablo/lab/carSync/feature/config/build/generated/res/pngs/debug
-com.jpdgbv.xcan.feature.config-updated_navigation_xml-1 /home/pablo/lab/carSync/feature/config/build/generated/updated_navigation_xml/debug
-com.jpdgbv.xcan.feature.config-mergeDebugResources-2 /home/pablo/lab/carSync/feature/config/build/intermediates/incremental/debug/mergeDebugResources/merged.dir
-com.jpdgbv.xcan.feature.config-mergeDebugResources-3 /home/pablo/lab/carSync/feature/config/build/intermediates/incremental/debug/mergeDebugResources/stripped.dir
-com.jpdgbv.xcan.feature.config-debug-4 /home/pablo/lab/carSync/feature/config/build/intermediates/merged_res/debug/mergeDebugResources
-com.jpdgbv.xcan.feature.config-debug-5 /home/pablo/lab/carSync/feature/config/build/intermediates/packaged_res/debug/packageDebugResources
-com.jpdgbv.xcan.feature.config-debug-6 /home/pablo/lab/carSync/feature/config/src/debug/res
-com.jpdgbv.xcan.feature.config-main-7 /home/pablo/lab/carSync/feature/config/src/main/res
-gradleHome-0 /home/pablo/.gradle

@@ -1,1 +1,0 @@
--keep,allowobfuscation,allowshrinking class com.jpdgbv.xcan.feature.diagnostics.DiagnosticsViewModel

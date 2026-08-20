@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.room.Room
 import com.jpdgbv.xcan.core.database.XCanDatabase
 import com.jpdgbv.xcan.core.database.dao.CarProfileDao
+import com.jpdgbv.xcan.core.database.dao.LogEntryDao
+import com.jpdgbv.xcan.core.database.dao.LogSessionDao
 import com.jpdgbv.xcan.core.database.dao.MaintenanceDao
 import dagger.Module
 import dagger.Provides
@@ -43,4 +45,19 @@ object DatabaseModule {
     ): CarProfileDao {
         return database.carProfileDao()
     }
+
+    @Provides
+    fun provideLogSessionDao(
+        database: XCanDatabase
+    ): LogSessionDao {
+        return database.logSessionDao()
+    }
+
+    @Provides
+    fun provideLogEntryDao(
+        database: XCanDatabase
+    ): LogEntryDao {
+        return database.logEntryDao()
+    }
 }
+

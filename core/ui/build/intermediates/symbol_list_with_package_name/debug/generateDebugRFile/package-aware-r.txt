@@ -1,1 +1,0 @@
-com.jpdgbv.xcan.core.ui
