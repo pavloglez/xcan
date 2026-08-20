@@ -1,15 +1,50 @@
-*.iml
-.gradle
-/local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
-.DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
+# Gradle and build directories
+.gradle/
+/build/
+build/
+*/build/
+*/*/build/
+*/*/*/build/
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Local configuration file (sdk path, etc)
 local.properties
+/local.properties
+
+# IDE (IntelliJ/Android Studio)
+.idea/
+!.idea/codeStyles/
+!.idea/dictionaries/
+.idea/caches/
+.idea/libraries/
+.idea/modules.xml
+.idea/workspace.xml
+.idea/navEditor.xml
+.idea/assetWizardSettings.xml
+.idea/vcs.xml
+*.iml
+*.iws
+
+# MacOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Build artifacts
+*.apk
+*.ap_
+*.aab
+*.aar
+*.dex
+*.class
+
+# Log Files
+*.log
+
+# Generated files
+bin/
+gen/
+out/
+kspCaches/
