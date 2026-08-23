@@ -17,12 +17,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import com.jpdgbv.xcan.core.ui.LocalHazeState
+import dev.chrisbanes.haze.hazeSource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jpdgbv.xcan.core.model.DiagnosticTroubleCode
 import com.jpdgbv.xcan.core.model.DtcType
+import com.jpdgbv.xcan.core.ui.components.GlassTopAppBar
 import com.jpdgbv.xcan.core.ui.theme.DeepCharcoal
 import com.jpdgbv.xcan.core.ui.theme.ElectricBlue
 import androidx.compose.ui.tooling.preview.Preview
@@ -71,22 +74,26 @@ fun DiagnosticsScreen(
         )
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(DeepCharcoal)
-            .padding(16.dp)
-    ) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        containerColor = DeepCharcoal,
+        topBar = {
+            GlassTopAppBar(title = "Vehicle Diagnostics")
+        }
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(DeepCharcoal)
+                .hazeSource(LocalHazeState.current)
         ) {
-            Text(
-                text = "Vehicle Diagnostics",
-                style = MaterialTheme.typography.headlineLarge,
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(bottom = 24.dp, top = 24.dp)
-            )
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .padding(horizontal = 16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
 
             if (!state.isConnected) {
                 Text(
@@ -168,6 +175,7 @@ fun DiagnosticsScreen(
                     // Handled in the clear button
                 }
             }
+        }
         }
     }
 }

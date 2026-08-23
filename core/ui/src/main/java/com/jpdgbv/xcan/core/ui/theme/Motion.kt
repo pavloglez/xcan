@@ -14,6 +14,6 @@ object XCanEasing {
 }
 
 object XCanDuration {
-    const val PressFeedback = 150
+    const val PressFeedback = 160
     const val Standard = 300
 }

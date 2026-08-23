@@ -11,8 +11,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
@@ -25,6 +27,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
@@ -45,8 +48,11 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jpdgbv.xcan.core.model.LogSession
+import com.jpdgbv.xcan.core.ui.components.GlassTopAppBar
 import com.jpdgbv.xcan.core.ui.components.bounceClick
-import com.jpdgbv.xcan.core.ui.components.pressBounce
+import com.jpdgbv.xcan.core.ui.components.staggerEnter
+import com.jpdgbv.xcan.core.ui.LocalHazeState
+import dev.chrisbanes.haze.hazeSource
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -106,44 +112,28 @@ fun LogSessionsScreen(
     onDeleteAll: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .background(DeepCharcoal)
-    ) {
-        // Header
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp, vertical = 20.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column {
-                Text(
-                    text = "Logged Sessions",
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 22.sp
-                )
-                Text(
-                    text = "${sessions.size} session${if (sessions.size != 1) "s" else ""}",
-                    color = LightGrayText,
-                    fontSize = 13.sp
-                )
-            }
-            if (sessions.isNotEmpty()) {
-                IconButton(onClick = onDeleteAll) {
-                    Icon(
-                        imageVector = Icons.Filled.DeleteForever,
-                        contentDescription = "Delete All",
-                        tint = NeonRed
-                    )
+    Scaffold(
+        modifier = modifier.fillMaxSize(),
+        containerColor = DeepCharcoal,
+        topBar = {
+            GlassTopAppBar(
+                title = "Logged Sessions (${sessions.size})",
+                actions = {
+                    if (sessions.isNotEmpty()) {
+                        IconButton(onClick = onDeleteAll) {
+                            Icon(
+                                imageVector = Icons.Filled.DeleteForever,
+                                contentDescription = "Delete All",
+                                tint = NeonRed
+                            )
+                        }
+                    }
                 }
-            }
+            )
         }
-
-        if (sessions.isEmpty() && !isLoading) {
+    ) { innerPadding ->
+        Box(modifier = Modifier.fillMaxSize()) {
+            if (sessions.isEmpty() && !isLoading) {
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
@@ -161,8 +151,14 @@ fun LogSessionsScreen(
                 }
             }
         } else {
-            LazyColumn {
-                items(sessions, key = { it.id }) { session ->
+            LazyColumn(
+                modifier = Modifier.fillMaxSize().background(DeepCharcoal).hazeSource(LocalHazeState.current),
+                contentPadding = PaddingValues(
+                    top = innerPadding.calculateTopPadding(),
+                    bottom = innerPadding.calculateBottomPadding() + 80.dp // To account for floating nav bar
+                )
+            ) {
+                itemsIndexed(sessions, key = { _, session -> session.id }) { index, session ->
                     val dismissState = rememberSwipeToDismissBoxState(
                         confirmValueChange = { value ->
                             if (value == SwipeToDismissBoxValue.EndToStart) {
@@ -175,6 +171,7 @@ fun LogSessionsScreen(
                     SwipeToDismissBox(
                         state = dismissState,
                         enableDismissFromStartToEnd = false,
+                        modifier = Modifier.staggerEnter(index = index, baseDelay = 30),
                         backgroundContent = {
                             Box(
                                 modifier = Modifier
@@ -196,6 +193,7 @@ fun LogSessionsScreen(
             }
         }
     }
+}
 }
 
 @Composable

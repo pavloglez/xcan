@@ -11,8 +11,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -28,6 +30,7 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -39,12 +42,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import com.jpdgbv.xcan.core.ui.LocalHazeState
+import dev.chrisbanes.haze.hazeSource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jpdgbv.xcan.core.model.MaintenanceLog
+import com.jpdgbv.xcan.core.ui.components.GlassTopAppBar
 import com.jpdgbv.xcan.core.ui.theme.CharcoalSurface
 import com.jpdgbv.xcan.core.ui.theme.DeepCharcoal
 import com.jpdgbv.xcan.core.ui.theme.ElectricBlue
@@ -77,35 +83,15 @@ fun MaintenanceScreen(
 ) {
     var showDialog by remember { mutableStateOf(false) }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(DeepCharcoal)
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = "Maintenance History",
-                style = MaterialTheme.typography.headlineLarge,
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(top = 24.dp)
-            )
-
-            if (state.activeCar != null) {
-                Text(
-                    text = state.activeCar.name,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = ElectricBlue,
-                    modifier = Modifier.padding(bottom = 16.dp, top = 4.dp)
-                )
-            } else {
-                Text(
-                    text = "No Vehicle Selected",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = Color.Gray,
-                    modifier = Modifier.padding(bottom = 16.dp, top = 4.dp)
-                )
-            }
-
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        containerColor = DeepCharcoal,
+        topBar = {
+            val title = if (state.activeCar != null) "Maintenance - ${state.activeCar.name}" else "Maintenance History"
+            GlassTopAppBar(title = title)
+        }
+    ) { innerPadding ->
+        Box(modifier = Modifier.fillMaxSize()) {
             if (state.activeCar == null) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text("Please select a vehicle on the Dashboard.", color = Color.Gray)
@@ -115,38 +101,45 @@ fun MaintenanceScreen(
                     Text("No logs found. Tap + to add.", color = Color.Gray)
                 }
             } else {
-                LazyColumn {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize().background(DeepCharcoal).hazeSource(LocalHazeState.current),
+                    contentPadding = PaddingValues(
+                        top = innerPadding.calculateTopPadding(),
+                        bottom = 200.dp
+                    )
+                ) {
                     items(state.logs.sortedByDescending { it.dateMs }) { log ->
                         TimelineMaintenanceLogItem(log = log, useMetric = state.useMetric)
                     }
                 }
             }
-        }
 
-        if (state.activeCar != null) {
-            val interactionSource = remember { MutableInteractionSource() }
-            FloatingActionButton(
-                onClick = { showDialog = true },
-                interactionSource = interactionSource,
-                containerColor = NeonAccent,
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(24.dp)
-                    .pressBounce(interactionSource)
-            ) {
-                Icon(Icons.Filled.Add, contentDescription = "Add Log", tint = DeepCharcoal)
-            }
-        }
-        
-        if (showDialog) {
-            AddMaintenanceLogDialog(
-                useMetric = state.useMetric,
-                onDismiss = { showDialog = false },
-                onConfirm = { type, notes, mileage, dtc ->
-                    showDialog = false
-                    onAddLog(type, notes, mileage, dtc)
+            if (state.activeCar != null) {
+                val interactionSource = remember { MutableInteractionSource() }
+                FloatingActionButton(
+                    onClick = { showDialog = true },
+                    interactionSource = interactionSource,
+                    containerColor = NeonAccent,
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .navigationBarsPadding()
+                        .padding(end = 24.dp, bottom = 140.dp)
+                        .pressBounce(interactionSource)
+                ) {
+                    Icon(Icons.Filled.Add, contentDescription = "Add Log", tint = DeepCharcoal)
                 }
-            )
+            }
+            
+            if (showDialog) {
+                AddMaintenanceLogDialog(
+                    useMetric = state.useMetric,
+                    onDismiss = { showDialog = false },
+                    onConfirm = { type, notes, mileage, dtc ->
+                        showDialog = false
+                        onAddLog(type, notes, mileage, dtc)
+                    }
+                )
+            }
         }
     }
 }

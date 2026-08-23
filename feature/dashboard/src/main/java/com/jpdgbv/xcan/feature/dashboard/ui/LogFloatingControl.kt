@@ -10,8 +10,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -43,7 +41,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jpdgbv.xcan.core.data.LoggingState
+import com.jpdgbv.xcan.core.ui.LocalHazeState
 import com.jpdgbv.xcan.core.ui.components.bounceClick
+import com.jpdgbv.xcan.core.ui.glassmorphism
 import kotlinx.coroutines.delay
 
 private val ElectricBlue = Color(0xFF00C8FF)
@@ -95,11 +95,18 @@ fun LogFloatingControl(
 
     Row(
         modifier = modifier
-            .background(
-                brush = Brush.linearGradient(listOf(GlassWhite, Color.White.copy(alpha = 0.06f))),
+            .glassmorphism(
+                hazeState = LocalHazeState.current,
                 shape = RoundedCornerShape(50)
             )
-            .border(0.5.dp, GlassBorder, RoundedCornerShape(50))
+            .then(
+                if (loggingState is LoggingState.Idle) {
+                    Modifier.bounceClick(onClick = {
+                        haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                        onStartLog()
+                    })
+                } else Modifier
+            )
             .padding(horizontal = 16.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center
@@ -117,11 +124,7 @@ fun LogFloatingControl(
                     text = "Log",
                     color = accentColor,
                     fontWeight = FontWeight.SemiBold,
-                    fontSize = 14.sp,
-                    modifier = Modifier.bounceClick(onClick = {
-                        haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                        onStartLog()
-                    })
+                    fontSize = 14.sp
                 )
             }
             is LoggingState.Recording, is LoggingState.Paused -> {

@@ -12,8 +12,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -25,8 +27,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.jpdgbv.xcan.core.ui.components.staggerEnter
+import com.jpdgbv.xcan.core.ui.LocalHazeState
+import dev.chrisbanes.haze.hazeSource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jpdgbv.xcan.core.model.LogEntry
+import com.jpdgbv.xcan.core.ui.components.GlassTopAppBar
 import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
 import com.patrykandpatrick.vico.compose.cartesian.axis.rememberBottom
 import com.patrykandpatrick.vico.compose.cartesian.axis.rememberStart
@@ -75,65 +81,75 @@ fun LogSessionDetailScreen(
 ) {
     val dateFormat = remember { SimpleDateFormat("MMM dd, yyyy · HH:mm", Locale.getDefault()) }
 
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .background(DeepCharcoal)
-    ) {
-        // Header
-        Column(modifier = Modifier.padding(horizontal = 24.dp, vertical = 20.dp)) {
+    Scaffold(
+        modifier = modifier.fillMaxSize(),
+        containerColor = DeepCharcoal,
+        topBar = {
+            val title = if (state.session != null) "${state.session.carLabel} Session" else "Log Session"
+            GlassTopAppBar(title = title)
+        }
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+        ) {
+            // Subtitle / Duration Info
             state.session?.let { session ->
-                Text(
-                    text = session.carLabel,
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 22.sp
-                )
-                Text(
-                    text = dateFormat.format(Date(session.startTimeMs)),
-                    color = LightGrayText,
-                    fontSize = 13.sp
-                )
-                session.durationMs?.let { ms ->
-                    val mins = TimeUnit.MILLISECONDS.toMinutes(ms)
-                    val secs = TimeUnit.MILLISECONDS.toSeconds(ms) % 60
+                Column(modifier = Modifier
+                    .padding(horizontal = 24.dp, vertical = 8.dp)
+                    .padding(top = innerPadding.calculateTopPadding())
+                ) {
                     Text(
-                        text = "Duration: ${if (mins > 0) "${mins}m " else ""}${secs}s",
-                        color = ElectricBlue,
-                        fontSize = 13.sp,
-                        modifier = Modifier.padding(top = 2.dp)
+                        text = dateFormat.format(Date(session.startTimeMs)),
+                        color = LightGrayText,
+                        fontSize = 13.sp
                     )
+                    session.durationMs?.let { ms ->
+                        val mins = TimeUnit.MILLISECONDS.toMinutes(ms)
+                        val secs = TimeUnit.MILLISECONDS.toSeconds(ms) % 60
+                        Text(
+                            text = "Duration: ${if (mins > 0) "${mins}m " else ""}${secs}s",
+                            color = ElectricBlue,
+                            fontSize = 13.sp,
+                            modifier = Modifier.padding(top = 2.dp)
+                        )
+                    }
                 }
             }
-        }
 
-        if (state.isLoading) {
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(color = ElectricBlue)
-            }
-        } else if (state.entriesByPid.isEmpty()) {
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text("No data recorded in this session", color = LightGrayText)
-            }
-        } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                contentPadding = androidx.compose.foundation.layout.PaddingValues(
-                    horizontal = 16.dp,
-                    vertical = 8.dp
-                )
-            ) {
-                items(
-                    items = state.entriesByPid.entries.toList(),
-                    key = { it.key }
-                ) { (pid, entries) ->
-                    val colorIndex = state.entriesByPid.keys.indexOf(pid) % ChartColors.size
-                    MetricChart(
-                        pid = pid,
-                        entries = entries,
-                        color = ChartColors[colorIndex]
+        Box(modifier = Modifier.fillMaxSize()) {
+            if (state.isLoading) {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(color = ElectricBlue)
+                }
+            } else if (state.entriesByPid.isEmpty()) {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text("No data recorded in this session", color = LightGrayText)
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize().background(DeepCharcoal).hazeSource(LocalHazeState.current),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    contentPadding = androidx.compose.foundation.layout.PaddingValues(
+                        start = 16.dp,
+                        end = 16.dp,
+                        top = 8.dp,
+                        bottom = innerPadding.calculateBottomPadding() + 16.dp
                     )
+                ) {
+                        itemsIndexed(
+                            items = state.entriesByPid.entries.toList(),
+                            key = { _, item -> item.key }
+                        ) { index, (pid, entries) ->
+                            val colorIndex = state.entriesByPid.keys.indexOf(pid) % ChartColors.size
+                            MetricChart(
+                                pid = pid,
+                                entries = entries,
+                                color = ChartColors[colorIndex],
+                                modifier = Modifier.staggerEnter(index)
+                            )
+                        }
+                    }
                 }
             }
         }

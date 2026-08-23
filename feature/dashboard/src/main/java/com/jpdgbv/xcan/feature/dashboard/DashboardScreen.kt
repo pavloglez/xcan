@@ -20,9 +20,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.draw.scale
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -33,15 +37,18 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -56,7 +63,6 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
@@ -72,7 +78,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.jpdgbv.xcan.core.ui.components.staggerEnter
 import com.jpdgbv.xcan.core.bluetooth.ScannedDevice
+import com.jpdgbv.xcan.core.ui.LocalHazeState
+import dev.chrisbanes.haze.hazeSource
+import com.jpdgbv.xcan.core.ui.components.GlassTopAppBar
 import com.jpdgbv.xcan.core.ui.theme.DeepCharcoal
 import com.jpdgbv.xcan.core.ui.theme.ElectricBlue
 import com.jpdgbv.xcan.core.ui.theme.NeonAccent
@@ -80,6 +90,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.jpdgbv.xcan.core.ui.theme.XCanTheme
 import com.jpdgbv.xcan.core.ui.theme.XCanEasing
 import androidx.compose.animation.core.LinearEasing
+import androidx.compose.ui.Alignment
 import com.jpdgbv.xcan.core.model.CarProfile
 import com.jpdgbv.xcan.core.model.TelemetryFrame
 import com.jpdgbv.xcan.core.bluetooth.ConnectionStatus
@@ -301,10 +312,17 @@ fun DashboardRoute(
         onShowCarSelect = { showCarSelectDialog = true },
         onShowLogs = { showLogsDialog = true },
         onShowConfig = { showConfigSheet = true },
-        onStartLog = { showCarPickerForLogging = true },
+        onStartLog = {
+            if (!state.isConnected) {
+                android.widget.Toast.makeText(context, "Please connect to a vehicle first", android.widget.Toast.LENGTH_SHORT).show()
+            } else {
+                showCarPickerForLogging = true
+            }
+        },
         onPauseLog = { viewModel.onIntent(DashboardIntent.PauseLogging) },
         onResumeLog = { viewModel.onIntent(DashboardIntent.ResumeLogging) },
-        onStopLog = { viewModel.onIntent(DashboardIntent.StopLogging) }
+        onStopLog = { viewModel.onIntent(DashboardIntent.StopLogging) },
+        onToggleTrackMode = { viewModel.onIntent(DashboardIntent.ToggleTrackMode) }
     )
 }
 
@@ -356,161 +374,232 @@ fun DashboardScreen(
     onStartLog: () -> Unit,
     onPauseLog: () -> Unit,
     onResumeLog: () -> Unit,
-    onStopLog: () -> Unit
+    onStopLog: () -> Unit,
+    onToggleTrackMode: () -> Unit
 ) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(DeepCharcoal)
-    ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(bottom = 32.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column {
-                Text(
-                    text = "XCan Telemetry",
-                    style = MaterialTheme.typography.headlineLarge,
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
-                Text(
-                    text = state.activeCar?.name ?: "No Vehicle Selected",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = ElectricBlue,
-                    modifier = Modifier.padding(top = 4.dp)
-                )
-            }
-            Row {
-                IconButton(onClick = onShowLogs) {
-                    Icon(
-                        imageVector = Icons.Default.ListAlt,
-                        contentDescription = "View Logs",
-                        tint = ElectricBlue
-                    )
-                }
-                IconButton(onClick = onShowConfig) {
-                    Icon(
-                        imageVector = Icons.Default.Settings,
-                        contentDescription = "Configure",
-                        tint = ElectricBlue
-                    )
-                }
-                IconButton(onClick = onShowCarSelect) {
-                    Icon(
-                        imageVector = Icons.Default.DirectionsCar,
-                        contentDescription = "Select Vehicle",
-                        tint = ElectricBlue
-                    )
-                }
-            }
-        }
-
-        LazyVerticalGrid(
-            columns = GridCells.Adaptive(minSize = 140.dp),
-            modifier = Modifier.fillMaxWidth().weight(1f),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            items(state.selectedSensors.toList()) { pid ->
-                val sensorEnum = state.allKnownSensors.find { it.pid == pid }
-                if (sensorEnum != null) {
-                    val rawValue = state.telemetry?.sensors?.get(pid) ?: 0f
-                    val displayValue = if (sensorEnum.pid == "010D" && !state.useMetric) {
-                        (rawValue * 0.621371).toFloat()
-                    } else if (sensorEnum.unit == "°C" && !state.useMetric) {
-                        (rawValue * 9/5) + 32
+    val neonRed = Color(0xFFFF2D55)
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        containerColor = DeepCharcoal,
+        topBar = {
+            val defaultTitle = if (state.activeCar != null) "Telemetry - ${state.activeCar.name}" else "XCan Telemetry"
+            GlassTopAppBar(
+                titleContent = {
+                    if (state.isTrackMode) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text("XCan ", color = Color.White)
+                            Text("Track", color = neonRed, fontWeight = FontWeight.Bold)
+                        }
                     } else {
-                        rawValue
+                        Text(defaultTitle, color = Color.White)
                     }
-                    val unit = if (sensorEnum.pid == "010D") {
-                        if (state.useMetric) "km/h" else "mph"
-                    } else if (sensorEnum.unit == "°C") {
-                        if (state.useMetric) "°C" else "°F"
-                    } else {
-                        sensorEnum.unit
+                },
+                actions = {
+                    IconButton(onClick = onShowLogs) {
+                        Icon(
+                            imageVector = Icons.Default.ListAlt,
+                            contentDescription = "View Logs",
+                            tint = ElectricBlue
+                        )
+                    }
+                    IconButton(onClick = onShowConfig) {
+                        Icon(
+                            imageVector = Icons.Default.Settings,
+                            contentDescription = "Configure",
+                            tint = ElectricBlue
+                        )
+                    }
+                    IconButton(onClick = onShowCarSelect) {
+                        Icon(
+                            imageVector = Icons.Default.DirectionsCar,
+                            contentDescription = "Select Vehicle",
+                            tint = ElectricBlue
+                        )
                     }
                     
-                    val maxVal = if (sensorEnum.pid == "010C") 8000f 
-                                 else if (sensorEnum.pid == "010D") (if(state.useMetric) 220f else 140f) 
-                                 else 100f // Fallback for others
-
-                    TelemetryDial(
-                        title = sensorEnum.displayName,
-                        value = displayValue,
-                        maxValue = maxVal,
-                        label = unit,
-                        color = ElectricBlue
+                    val infiniteTransition = rememberInfiniteTransition(label = "trackPulse")
+                    val pulseScale by infiniteTransition.animateFloat(
+                        initialValue = 1f,
+                        targetValue = 1.3f,
+                        animationSpec = infiniteRepeatable(
+                            animation = tween(800, easing = LinearEasing),
+                            repeatMode = RepeatMode.Reverse
+                        ),
+                        label = "pulseScale"
                     )
+                    val pulseAlpha by infiniteTransition.animateFloat(
+                        initialValue = 0.5f,
+                        targetValue = 0f,
+                        animationSpec = infiniteRepeatable(
+                            animation = tween(800, easing = LinearEasing),
+                            repeatMode = RepeatMode.Reverse
+                        ),
+                        label = "pulseAlpha"
+                    )
+
+                    Box(contentAlignment = Alignment.Center, modifier = Modifier.padding(end = 8.dp)) {
+                        if (state.isTrackMode) {
+                            Box(
+                                modifier = Modifier
+                                    .padding(horizontal = 4.dp)
+                                    .height(32.dp)
+                                    .width(80.dp)
+                                    .scale(pulseScale)
+                                    .background(neonRed.copy(alpha = pulseAlpha), RoundedCornerShape(16.dp))
+                            )
+                        }
+                        
+                        val pulsingButtonColor = if (state.isTrackMode) {
+                            androidx.compose.ui.graphics.lerp(
+                                start = neonRed,
+                                stop = Color(0xFFFF8888),
+                                fraction = (0.5f - pulseAlpha) * 2f
+                            )
+                        } else {
+                            neonRed
+                        }
+
+                        androidx.compose.material3.Surface(
+                            shape = RoundedCornerShape(16.dp),
+                            color = pulsingButtonColor,
+                            onClick = onToggleTrackMode,
+                            modifier = Modifier
+                                .padding(horizontal = 4.dp)
+                                .height(32.dp)
+                                .defaultMinSize(minWidth = 80.dp)
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Text(
+                                    text = "TRACK",
+                                    color = Color.White,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.padding(horizontal = 12.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+            )
+        }
+    ) { innerPadding ->
+        Box(modifier = Modifier.fillMaxSize()) {
+            LazyVerticalGrid(
+                columns = GridCells.Adaptive(minSize = 140.dp),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(DeepCharcoal)
+                    .hazeSource(LocalHazeState.current),
+                contentPadding = PaddingValues(
+                    top = innerPadding.calculateTopPadding() + 16.dp,
+                    bottom = 200.dp,
+                    start = 24.dp,
+                    end = 24.dp
+                ),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                itemsIndexed(state.selectedSensors.toList()) { index, pid ->
+                    val sensorEnum = state.allKnownSensors.find { it.pid == pid }
+                    if (sensorEnum != null) {
+                        val rawValue = state.telemetry?.sensors?.get(pid) ?: 0f
+                        val displayValue = if (sensorEnum.pid == "010D" && !state.useMetric) {
+                            (rawValue * 0.621371).toFloat()
+                        } else if (sensorEnum.unit == "°C" && !state.useMetric) {
+                            (rawValue * 9/5) + 32
+                        } else {
+                            rawValue
+                        }
+                        val unit = if (sensorEnum.pid == "010D") {
+                            if (state.useMetric) "km/h" else "mph"
+                        } else if (sensorEnum.unit == "°C") {
+                            if (state.useMetric) "°C" else "°F"
+                        } else {
+                            sensorEnum.unit
+                        }
+                        
+                        val maxVal = if (sensorEnum.pid == "010C") 8000f 
+                                     else if (sensorEnum.pid == "010D") (if(state.useMetric) 220f else 140f) 
+                                     else 100f // Fallback for others
+
+                        TelemetryDial(
+                            title = sensorEnum.displayName,
+                            value = displayValue,
+                            maxValue = maxVal,
+                            label = unit,
+                            color = ElectricBlue,
+                            isTrackMode = state.isTrackMode,
+                            modifier = Modifier.staggerEnter(index)
+                        )
+                    }
                 }
             }
-        }
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        if (state.isConnected) {
-            val interactionSource = remember { MutableInteractionSource() }
-            Button(
-                onClick = onDisconnect,
-                interactionSource = interactionSource,
-                modifier = Modifier.pressBounce(interactionSource),
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+            // Connection Button - floating bottom center
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .navigationBarsPadding()
+                    .padding(bottom = 100.dp, end = 16.dp)
             ) {
-                Text("Disconnect")
+                if (state.isConnected) {
+                    val interactionSource = remember { MutableInteractionSource() }
+                    Button(
+                        onClick = onDisconnect,
+                        interactionSource = interactionSource,
+                        modifier = Modifier.pressBounce(interactionSource),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                    ) {
+                        Text("Disconnect")
+                    }
+                } else if (state.isConnecting) {
+                    val infiniteTransition = rememberInfiniteTransition()
+                    val alpha by infiniteTransition.animateFloat(
+                        initialValue = 0.3f,
+                        targetValue = 1.0f,
+                        animationSpec = infiniteRepeatable(
+                            animation = tween(800, easing = LinearEasing),
+                            repeatMode = RepeatMode.Reverse
+                        )
+                    )
+                    Button(
+                        onClick = { },
+                        enabled = false,
+                        modifier = Modifier.alpha(alpha),
+                        colors = ButtonDefaults.buttonColors(
+                            disabledContainerColor = ElectricBlue,
+                            disabledContentColor = Color.White
+                        )
+                    ) {
+                        Text("Connecting...")
+                    }
+                } else {
+                    val interactionSource = remember { MutableInteractionSource() }
+                    Button(
+                        onClick = onConnect,
+                        interactionSource = interactionSource,
+                        modifier = Modifier.pressBounce(interactionSource),
+                        colors = ButtonDefaults.buttonColors(containerColor = ElectricBlue)
+                    ) {
+                        Text("Connect OBD-II")
+                    }
+                }
             }
-        } else if (state.isConnecting) {
-            val infiniteTransition = rememberInfiniteTransition()
-            val alpha by infiniteTransition.animateFloat(
-                initialValue = 0.3f,
-                targetValue = 1.0f,
-                animationSpec = infiniteRepeatable(
-                    animation = tween(800, easing = LinearEasing),
-                    repeatMode = RepeatMode.Reverse
-                )
+
+            // Glassmorphism floating log control — bottom-center
+            com.jpdgbv.xcan.feature.dashboard.ui.LogFloatingControl(
+                loggingState = state.loggingState,
+                onPause = onPauseLog,
+                onResume = onResumeLog,
+                onStop = onStopLog,
+                onStartLog = onStartLog,
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .navigationBarsPadding()
+                    .padding(end = 16.dp, bottom = 160.dp)
             )
-            Button(
-                onClick = { },
-                enabled = false,
-                modifier = Modifier.alpha(alpha),
-                colors = ButtonDefaults.buttonColors(
-                    disabledContainerColor = ElectricBlue,
-                    disabledContentColor = Color.White
-                )
-            ) {
-                Text("Connecting...")
-            }
-        } else {
-            val interactionSource = remember { MutableInteractionSource() }
-            Button(
-                onClick = onConnect,
-                interactionSource = interactionSource,
-                modifier = Modifier.pressBounce(interactionSource),
-                colors = ButtonDefaults.buttonColors(containerColor = ElectricBlue)
-            ) {
-                Text("Connect OBD-II")
-            }
         }
-    } // end Column
-
-    // Glassmorphism floating log control — bottom-center
-    com.jpdgbv.xcan.feature.dashboard.ui.LogFloatingControl(
-        loggingState = state.loggingState,
-        onPause = onPauseLog,
-        onResume = onResumeLog,
-        onStop = onStopLog,
-        onStartLog = onStartLog,
-        modifier = Modifier
-            .align(Alignment.BottomEnd)
-            .navigationBarsPadding()
-            .padding(end = 16.dp, bottom = 16.dp)
-    )
-    } // end Box
+    }
 }
 
 @Composable
@@ -519,7 +608,9 @@ fun TelemetryDial(
     value: Float,
     maxValue: Float,
     label: String,
-    color: Color
+    color: Color,
+    isTrackMode: Boolean = false,
+    modifier: Modifier = Modifier
 ) {
     val animatedValue by animateFloatAsState(
         targetValue = value,
@@ -529,17 +620,17 @@ fun TelemetryDial(
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.fillMaxWidth()
+        modifier = modifier.fillMaxWidth()
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .aspectRatio(1f),
-                //.padding(16.dp),
             contentAlignment = Alignment.Center
         ) {
             Canvas(modifier = Modifier.fillMaxSize()) {
-            val strokeWidth = 14.dp.toPx()
+            val baseStrokeWidth = if (isTrackMode) 24.dp.toPx() else 14.dp.toPx()
+            val strokeWidth = baseStrokeWidth
             val arcSize = size.minDimension - strokeWidth
             val radius = arcSize / 2f
             val verticalShift = arcSize / 8f
@@ -670,13 +761,14 @@ fun TelemetryDial(
             Text(
                 text = value.toInt().toString(),
                 color = Color.White,
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold
+                fontSize = if (isTrackMode) 40.sp else 24.sp,
+                fontWeight = if (isTrackMode) FontWeight.Black else FontWeight.Bold
             )
             Text(
                 text = label,
                 color = Color.Gray,
-                fontSize = 12.sp
+                fontSize = if (isTrackMode) 16.sp else 12.sp,
+                fontWeight = if (isTrackMode) FontWeight.Bold else FontWeight.Normal
             )
         }
         } // Closes the Box
@@ -684,8 +776,8 @@ fun TelemetryDial(
         Text(
             text = title,
             color = Color.LightGray,
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Medium,
+            fontSize = if (isTrackMode) 18.sp else 14.sp,
+            fontWeight = if (isTrackMode) FontWeight.Bold else FontWeight.Medium,
             modifier = Modifier.padding( bottom = 8.dp)
         )
     } // Closes the outer Column
@@ -748,7 +840,8 @@ fun DashboardScreenPreview() {
             onStartLog = {},
             onPauseLog = {},
             onResumeLog = {},
-            onStopLog = {}
+            onStopLog = {},
+            onToggleTrackMode = {}
         )
     }
 }

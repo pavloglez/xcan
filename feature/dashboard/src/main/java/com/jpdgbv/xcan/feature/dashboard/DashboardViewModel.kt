@@ -42,7 +42,8 @@ data class DashboardState(
     val supportedSensors: List<ObdSensor> = emptyList(),
     val selectedSensors: Set<String> = emptySet(),
     val allKnownSensors: List<ObdSensor> = emptyList(),
-    val loggingState: LoggingState = LoggingState.Idle
+    val loggingState: LoggingState = LoggingState.Idle,
+    val isTrackMode: Boolean = false
 ) {
     val isConnected: Boolean get() = connectionStatus == ConnectionStatus.CONNECTED
     val isConnecting: Boolean get() = connectionStatus == ConnectionStatus.CONNECTING
@@ -61,6 +62,7 @@ sealed interface DashboardIntent {
     object PauseLogging : DashboardIntent
     object ResumeLogging : DashboardIntent
     object StopLogging : DashboardIntent
+    object ToggleTrackMode : DashboardIntent
 }
 
 @HiltViewModel
@@ -78,8 +80,9 @@ class DashboardViewModel @Inject constructor(
     private var scanningJob: kotlinx.coroutines.Job? = null
 
     private val _connectionLogs = MutableStateFlow<List<String>>(emptyList())
-    private val _supportedSensors = MutableStateFlow<List<ObdSensor>>(emptyList())
+    val _supportedSensors = MutableStateFlow<List<ObdSensor>>(emptyList())
     private val _loggingState = LoggingService.loggingState
+    private val _isTrackMode = MutableStateFlow(false)
 
     init {
         viewModelScope.launch {
@@ -118,7 +121,8 @@ class DashboardViewModel @Inject constructor(
         _supportedSensors,
         userPreferencesRepository.selectedSensors,
         sensorRepository.getSensors(),
-        _loggingState
+        _loggingState,
+        _isTrackMode
     ) { args ->
         val status = args[0] as ConnectionStatus
         val telemetry = args[1] as? TelemetryFrame
@@ -132,6 +136,7 @@ class DashboardViewModel @Inject constructor(
         val selected = args[9] as Set<String>
         val allKnown = args[10] as List<ObdSensor>
         val loggingState = args[11] as LoggingState
+        val trackMode = args[12] as Boolean
 
         DashboardState(
             connectionStatus = status,
@@ -145,7 +150,8 @@ class DashboardViewModel @Inject constructor(
             supportedSensors = supported,
             selectedSensors = selected,
             allKnownSensors = allKnown,
-            loggingState = loggingState
+            loggingState = loggingState,
+            isTrackMode = trackMode
         )
     }.stateIn(
         scope = viewModelScope,
@@ -238,6 +244,9 @@ class DashboardViewModel @Inject constructor(
                     else -> return
                 }
                 context.startService(LoggingService.stopIntent(context, sessionId))
+            }
+            DashboardIntent.ToggleTrackMode -> {
+                _isTrackMode.value = !_isTrackMode.value
             }
         }
     }

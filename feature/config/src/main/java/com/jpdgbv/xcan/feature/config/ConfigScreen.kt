@@ -1,6 +1,7 @@
 package com.jpdgbv.xcan.feature.config
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
@@ -18,6 +20,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.jpdgbv.xcan.core.ui.components.GlassTopAppBar
+import com.jpdgbv.xcan.core.ui.LocalHazeState
+import dev.chrisbanes.haze.hazeSource
 import com.jpdgbv.xcan.core.ui.theme.DeepCharcoal
 import com.jpdgbv.xcan.core.ui.theme.ElectricBlue
 import androidx.compose.ui.tooling.preview.Preview
@@ -40,18 +45,25 @@ fun ConfigScreen(
     state: ConfigState,
     onToggleMetric: (Boolean) -> Unit
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(DeepCharcoal)
-            .padding(16.dp)
-    ) {
-        Text(
-            text = "ECU Configuration",
-            style = MaterialTheme.typography.headlineLarge,
-            color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.padding(bottom = 32.dp, top = 24.dp)
-        )
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        containerColor = DeepCharcoal,
+        topBar = {
+            GlassTopAppBar(title = "ECU Configuration")
+        }
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(DeepCharcoal)
+                .hazeSource(LocalHazeState.current)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .padding(horizontal = 16.dp)
+            ) {
 
         Row(
             modifier = Modifier
@@ -79,6 +91,8 @@ fun ConfigScreen(
                     checkedTrackColor = ElectricBlue.copy(alpha = 0.5f)
                 )
             )
+        }
+            }
         }
     }
 }

@@ -37,10 +37,20 @@ fun Modifier.bounceClick(
         label = "bounceClick"
     )
 
+    val alpha by animateFloatAsState(
+        targetValue = if (isPressed) 0.8f else 1f,
+        animationSpec = tween(
+            durationMillis = XCanDuration.PressFeedback,
+            easing = XCanEasing.EaseOut
+        ),
+        label = "bounceClickAlpha"
+    )
+
     this
         .graphicsLayer {
             scaleX = scale
             scaleY = scale
+            this.alpha = alpha
         }
         .clickable(
             interactionSource = interactionSource,
@@ -71,8 +81,18 @@ fun Modifier.pressBounce(
         label = "pressBounce"
     )
 
+    val alpha by animateFloatAsState(
+        targetValue = if (isPressed) 0.8f else 1f,
+        animationSpec = tween(
+            durationMillis = XCanDuration.PressFeedback,
+            easing = XCanEasing.EaseOut
+        ),
+        label = "pressBounceAlpha"
+    )
+
     this.graphicsLayer {
         scaleX = scale
         scaleY = scale
+        this.alpha = alpha
     }
 }
