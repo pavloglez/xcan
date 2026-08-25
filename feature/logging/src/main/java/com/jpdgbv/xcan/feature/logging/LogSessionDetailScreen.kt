@@ -1,6 +1,7 @@
 package com.jpdgbv.xcan.feature.logging
 
 import androidx.compose.foundation.background
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -50,11 +51,6 @@ import java.util.Date
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 
-private val DeepCharcoal = Color(0xFF0D0D1A)
-private val CharcoalSurface = Color(0xFF1A1A2E)
-private val ElectricBlue = Color(0xFF00C8FF)
-private val LightGrayText = Color(0xFFB0BEC5)
-private val NeonAccent = Color(0xFF39FF14)
 
 private val ChartColors = listOf(
     Color(0xFF00C8FF),
@@ -83,7 +79,7 @@ fun LogSessionDetailScreen(
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
-        containerColor = DeepCharcoal,
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             val title = if (state.session != null) "${state.session.carLabel} Session" else "Log Session"
             GlassTopAppBar(title = title)
@@ -101,7 +97,7 @@ fun LogSessionDetailScreen(
                 ) {
                     Text(
                         text = dateFormat.format(Date(session.startTimeMs)),
-                        color = LightGrayText,
+                        color = MaterialTheme.colorScheme.onBackground,
                         fontSize = 13.sp
                     )
                     session.durationMs?.let { ms ->
@@ -109,7 +105,7 @@ fun LogSessionDetailScreen(
                         val secs = TimeUnit.MILLISECONDS.toSeconds(ms) % 60
                         Text(
                             text = "Duration: ${if (mins > 0) "${mins}m " else ""}${secs}s",
-                            color = ElectricBlue,
+                            color = MaterialTheme.colorScheme.primary,
                             fontSize = 13.sp,
                             modifier = Modifier.padding(top = 2.dp)
                         )
@@ -120,15 +116,15 @@ fun LogSessionDetailScreen(
         Box(modifier = Modifier.fillMaxSize()) {
             if (state.isLoading) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(color = ElectricBlue)
+                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                 }
             } else if (state.entriesByPid.isEmpty()) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("No data recorded in this session", color = LightGrayText)
+                    Text("No data recorded in this session", color = MaterialTheme.colorScheme.onBackground)
                 }
             } else {
                 LazyColumn(
-                    modifier = Modifier.fillMaxSize().background(DeepCharcoal).hazeSource(LocalHazeState.current),
+                    modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).hazeSource(LocalHazeState.current),
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                     contentPadding = androidx.compose.foundation.layout.PaddingValues(
                         start = 16.dp,
@@ -182,7 +178,7 @@ private fun MetricChart(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .background(CharcoalSurface, RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(16.dp))
             .padding(16.dp)
     ) {
         Row(
@@ -198,7 +194,7 @@ private fun MetricChart(
             )
             Text(
                 text = "${entries.size} pts",
-                color = LightGrayText,
+                color = MaterialTheme.colorScheme.onBackground,
                 fontSize = 11.sp
             )
         }
@@ -236,7 +232,7 @@ private fun MetricChart(
 @Composable
 private fun StatChip(label: String, value: String, color: Color) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(label, color = LightGrayText, fontSize = 10.sp)
+        Text(label, color = MaterialTheme.colorScheme.onBackground, fontSize = 10.sp)
         Text(value, color = color, fontWeight = FontWeight.Medium, fontSize = 13.sp)
     }
 }

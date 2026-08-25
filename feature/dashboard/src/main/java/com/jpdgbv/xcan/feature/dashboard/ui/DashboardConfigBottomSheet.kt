@@ -1,6 +1,7 @@
 package com.jpdgbv.xcan.feature.dashboard.ui
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -26,9 +27,6 @@ import com.jpdgbv.xcan.core.ui.components.bounceClick
 import com.jpdgbv.xcan.core.model.ObdSensor
 import com.jpdgbv.xcan.core.ui.components.pressBounce
 
-private val ElectricBlue = Color(0xFF00C8FF)
-private val CharcoalSurface = Color(0xFF1A1A2E)
-private val LightGrayText = Color(0xFFB0BEC5)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -43,24 +41,24 @@ fun DashboardConfigBottomSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = CharcoalSurface,
+        containerColor = MaterialTheme.colorScheme.surface,
         modifier = modifier
     ) {
         Column(Modifier.padding(horizontal = 16.dp)) {
             Text(
                 text = "Dashboard Widgets",
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Bold,
                 fontSize = 18.sp
             )
             Spacer(Modifier.height(4.dp))
             Text(
                 text = "Checked items appear on the dashboard and are logged automatically",
-                color = LightGrayText,
+                color = MaterialTheme.colorScheme.onBackground,
                 fontSize = 13.sp
             )
             Spacer(Modifier.height(16.dp))
-            HorizontalDivider(color = Color.White.copy(alpha = 0.08f))
+            HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
 
             LazyColumn {
                 items(allSensors) { sensor ->
@@ -76,25 +74,25 @@ fun DashboardConfigBottomSheet(
                             checked = isChecked,
                             onCheckedChange = { onToggleSensor(sensor.pid, it) },
                             colors = CheckboxDefaults.colors(
-                                checkedColor = ElectricBlue,
-                                uncheckedColor = LightGrayText
+                                checkedColor = MaterialTheme.colorScheme.primary,
+                                uncheckedColor = MaterialTheme.colorScheme.onBackground
                             )
                         )
                         Column(Modifier.padding(start = 8.dp)) {
                             Text(
                                 text = sensor.pid,
-                                color = Color.White,
+                                color = MaterialTheme.colorScheme.onSurface,
                                 fontWeight = FontWeight.Medium,
                                 fontSize = 14.sp
                             )
                             Text(
                                 text = "${sensor.pid} · ${sensor.unit}",
-                                color = LightGrayText,
+                                color = MaterialTheme.colorScheme.onBackground,
                                 fontSize = 11.sp
                             )
                         }
                     }
-                    HorizontalDivider(color = Color.White.copy(alpha = 0.04f))
+                    HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.04f))
                 }
             }
             Spacer(Modifier.height(24.dp))

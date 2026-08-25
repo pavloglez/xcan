@@ -6,6 +6,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.jpdgbv.xcan.core.bluetooth.ConnectionStatus
+import com.jpdgbv.xcan.core.model.ObdSensor
 import com.jpdgbv.xcan.core.model.TelemetryFrame
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -20,13 +21,21 @@ class DashboardScreenInstrumentedTest {
     val composeTestRule = createComposeRule()
 
     @Test
-    fun `shows Connect OBD-II button when disconnected`() {
+    fun showsConnectOBDIIButtonWhenDisconnected() {
         var connectClicked = false
         composeTestRule.setContent {
             DashboardScreen(
-                state = DashboardState(connectionStatus = ConnectionStatus.DISCONNECTED),
+                state = DashboardUIState(connectionStatus = ConnectionStatus.DISCONNECTED),
                 onConnect = { connectClicked = true },
-                onDisconnect = { }
+                onDisconnect = { },
+                onShowCarSelect = { },
+                onShowLogs = { },
+                onShowConfig = { },
+                onStartLog = { },
+                onPauseLog = { },
+                onResumeLog = { },
+                onStopLog = { },
+                onToggleTrackMode = { }
             )
         }
 
@@ -36,12 +45,20 @@ class DashboardScreenInstrumentedTest {
     }
 
     @Test
-    fun `shows Connecting button when connecting`() {
+    fun showsConnectingButtonWhenConnecting() {
         composeTestRule.setContent {
             DashboardScreen(
-                state = DashboardState(connectionStatus = ConnectionStatus.CONNECTING),
+                state = DashboardUIState(connectionStatus = ConnectionStatus.CONNECTING),
                 onConnect = { },
-                onDisconnect = { }
+                onDisconnect = { },
+                onShowCarSelect = { },
+                onShowLogs = { },
+                onShowConfig = { },
+                onStartLog = { },
+                onPauseLog = { },
+                onResumeLog = { },
+                onStopLog = { },
+                onToggleTrackMode = { }
             )
         }
 
@@ -50,18 +67,32 @@ class DashboardScreenInstrumentedTest {
     }
 
     @Test
-    fun `shows Disconnect and Dials when connected`() {
+    fun showsDisconnectAndDialsWhenConnected() {
         var disconnectClicked = false
-        val telemetryFrame = TelemetryFrame("id", 0L, 3500, 120, 50f, 90)
+        val telemetryFrame = TelemetryFrame("id", 0L, mapOf("010C" to 3500f, "010D" to 120f))
 
         composeTestRule.setContent {
             DashboardScreen(
-                state = DashboardState(
+                state = DashboardUIState(
                     connectionStatus = ConnectionStatus.CONNECTED,
-                    telemetry = telemetryFrame
+                    telemetry = telemetryFrame,
+                    useMetric = true,
+                    selectedSensors = setOf("010C", "010D"),
+                    allKnownSensors = listOf(
+                        ObdSensor(pid = "010C", displayName = "RPM", unit = "rpm", expectedBytes = 2, formula = ""),
+                        ObdSensor(pid = "010D", displayName = "Speed", unit = "km/h", expectedBytes = 1, formula = "")
+                    )
                 ),
                 onConnect = { },
-                onDisconnect = { disconnectClicked = true }
+                onDisconnect = { disconnectClicked = true },
+                onShowCarSelect = { },
+                onShowLogs = { },
+                onShowConfig = { },
+                onStartLog = { },
+                onPauseLog = { },
+                onResumeLog = { },
+                onStopLog = { },
+                onToggleTrackMode = { }
             )
         }
 
@@ -72,7 +103,7 @@ class DashboardScreenInstrumentedTest {
         composeTestRule.onNodeWithText("RPM").assertIsDisplayed()
         composeTestRule.onNodeWithText("3500").assertIsDisplayed()
         
-        composeTestRule.onNodeWithText("KM/H").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Speed").assertIsDisplayed()
         composeTestRule.onNodeWithText("120").assertIsDisplayed()
     }
 }

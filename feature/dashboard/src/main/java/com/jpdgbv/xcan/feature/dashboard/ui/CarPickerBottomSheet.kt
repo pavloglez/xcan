@@ -1,6 +1,7 @@
 package com.jpdgbv.xcan.feature.dashboard.ui
 
 import androidx.compose.foundation.clickable
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -31,9 +32,6 @@ import com.jpdgbv.xcan.core.model.CarProfile
 import com.jpdgbv.xcan.core.ui.components.bounceClick
 import com.jpdgbv.xcan.core.ui.components.pressBounce
 
-private val ElectricBlue = Color(0xFF00C8FF)
-private val CharcoalSurface = Color(0xFF1A1A2E)
-private val LightGrayText = Color(0xFFB0BEC5)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -47,7 +45,7 @@ fun CarPickerBottomSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = CharcoalSurface.copy(alpha = 0.85f),
+        containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.85f),
         modifier = modifier
     ) {
         Column(
@@ -57,18 +55,18 @@ fun CarPickerBottomSheet(
         ) {
             Text(
                 text = "Select Vehicle",
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Bold,
                 fontSize = 18.sp
             )
             Spacer(Modifier.height(4.dp))
             Text(
                 text = "Choose which car to log this session for",
-                color = LightGrayText,
+                color = MaterialTheme.colorScheme.onBackground,
                 fontSize = 13.sp
             )
             Spacer(Modifier.height(16.dp))
-            HorizontalDivider(color = Color.White.copy(alpha = 0.08f))
+            HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
             LazyColumn {
                 items(cars) { car ->
                     Row(
@@ -81,25 +79,25 @@ fun CarPickerBottomSheet(
                         Icon(
                             imageVector = Icons.Filled.DirectionsCar,
                             contentDescription = null,
-                            tint = ElectricBlue,
+                            tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(22.dp)
                         )
                         Spacer(Modifier.width(12.dp))
                         Column {
                             Text(
                                 text = car.name,
-                                color = Color.White,
+                                color = MaterialTheme.colorScheme.onSurface,
                                 fontWeight = FontWeight.Medium,
                                 fontSize = 15.sp
                             )
                             Text(
                                 text = "${car.year} · ${car.make}",
-                                color = LightGrayText,
+                                color = MaterialTheme.colorScheme.onBackground,
                                 fontSize = 12.sp
                             )
                         }
                     }
-                    HorizontalDivider(color = Color.White.copy(alpha = 0.05f))
+                    HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.05f))
                 }
             }
             Spacer(Modifier.height(24.dp))

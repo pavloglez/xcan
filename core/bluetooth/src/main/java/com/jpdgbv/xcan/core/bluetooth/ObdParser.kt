@@ -3,16 +3,18 @@ package com.jpdgbv.xcan.core.bluetooth
 import com.jpdgbv.xcan.core.model.SensorRepository
 import com.jpdgbv.xcan.core.model.TelemetryFrame
 import java.util.UUID
+import javax.inject.Inject
 
-object ObdParser {
-    val OBD_SERVICE_UUID: UUID = UUID.fromString("0000FFF0-0000-1000-8000-00805F9B34FB")
-    val OBD_RX_CHARACTERISTIC_UUID: UUID = UUID.fromString("0000FFF1-0000-1000-8000-00805F9B34FB")
-    val OBD_TX_CHARACTERISTIC_UUID: UUID = UUID.fromString("0000FFF2-0000-1000-8000-00805F9B34FB")
+class ObdParser @Inject constructor(
+    private val sensorRepo: SensorRepository
+) {
+    companion object {
+        val OBD_SERVICE_UUID: UUID = UUID.fromString("0000FFF0-0000-1000-8000-00805F9B34FB")
+        val OBD_RX_CHARACTERISTIC_UUID: UUID = UUID.fromString("0000FFF1-0000-1000-8000-00805F9B34FB")
+        val OBD_TX_CHARACTERISTIC_UUID: UUID = UUID.fromString("0000FFF2-0000-1000-8000-00805F9B34FB")
+    }
 
-    // We maintain internal state so we can return a unified TelemetryFrame on each update
-    private val currentSensors = mutableMapOf<String, Float>()
-
-    fun parse(data: String, sensorRepo: SensorRepository): TelemetryFrame? {
+    fun parse(data: String): Pair<String, Float>? {
         val cleanData = data.replace(" ", "").replace("\r", "").replace(">", "")
         if (cleanData.length < 4 || !cleanData.startsWith("41")) return null
 
@@ -23,7 +25,7 @@ object ObdParser {
             val sensor = sensorRepo.getSensorByPidSync(fullPid)
             
             val expectedBytes = if (sensor.expectedBytes == -1) {
-                (cleanData.length - 4) / 2 // Parse all remaining bytes if length is unknown
+                (cleanData.length - 4) / 2 
             } else {
                 sensor.expectedBytes
             }
@@ -35,18 +37,12 @@ object ObdParser {
                     val startIndex = 4 + (i * 2)
                     bytes[i] = cleanData.substring(startIndex, startIndex + 2).toInt(16)
                 }
-                
-                currentSensors[fullPid] = evaluateFormula(sensor.formula, bytes)
+                return Pair(fullPid, evaluateFormula(sensor.formula, bytes))
             }
         } catch (e: Exception) {
-            return null // Parsing error, ignore
+            return null 
         }
-
-        return TelemetryFrame(
-            id = UUID.randomUUID().toString(),
-            timestampMs = System.currentTimeMillis(),
-            sensors = currentSensors.toMap()
-        )
+        return null
     }
     
     private fun evaluateFormula(formula: String, bytes: IntArray): Float {

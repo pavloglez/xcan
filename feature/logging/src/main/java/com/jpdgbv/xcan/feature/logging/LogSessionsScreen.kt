@@ -58,11 +58,6 @@ import java.util.Date
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 
-private val DeepCharcoal = Color(0xFF0D0D1A)
-private val CharcoalSurface = Color(0xFF1A1A2E)
-private val ElectricBlue = Color(0xFF00C8FF)
-private val LightGrayText = Color(0xFFB0BEC5)
-private val NeonRed = Color(0xFFFF2D55)
 
 @Composable
 fun LogSessionsRoute(
@@ -75,16 +70,16 @@ fun LogSessionsRoute(
     if (showDeleteAllDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteAllDialog = false },
-            containerColor = CharcoalSurface,
-            title = { Text("Delete All Sessions?", color = Color.White) },
-            text = { Text("This will permanently remove all logged sessions and their data.", color = LightGrayText) },
+            containerColor = MaterialTheme.colorScheme.surface,
+            title = { Text("Delete All Sessions?", color = MaterialTheme.colorScheme.onSurface) },
+            text = { Text("This will permanently remove all logged sessions and their data.", color = MaterialTheme.colorScheme.onBackground) },
             confirmButton = {
                 Button(
                     onClick = {
                         viewModel.onIntent(LogSessionsIntent.ConfirmDeleteAll)
                         showDeleteAllDialog = false
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = NeonRed)
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
                 ) { Text("Delete All") }
             },
             dismissButton = {
@@ -114,7 +109,7 @@ fun LogSessionsScreen(
 ) {
     Scaffold(
         modifier = modifier.fillMaxSize(),
-        containerColor = DeepCharcoal,
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             GlassTopAppBar(
                 title = "Logged Sessions (${sessions.size})",
@@ -124,7 +119,7 @@ fun LogSessionsScreen(
                             Icon(
                                 imageVector = Icons.Filled.DeleteForever,
                                 contentDescription = "Delete All",
-                                tint = NeonRed
+                                tint = MaterialTheme.colorScheme.error
                             )
                         }
                     }
@@ -142,17 +137,17 @@ fun LogSessionsScreen(
                     Icon(
                         imageVector = Icons.Filled.DirectionsCar,
                         contentDescription = null,
-                        tint = LightGrayText,
+                        tint = MaterialTheme.colorScheme.onBackground,
                         modifier = Modifier.size(48.dp)
                     )
                     Spacer(Modifier.height(12.dp))
-                    Text("No sessions yet", color = LightGrayText, fontSize = 16.sp)
-                    Text("Start logging from the dashboard", color = LightGrayText.copy(alpha = 0.6f), fontSize = 13.sp)
+                    Text("No sessions yet", color = MaterialTheme.colorScheme.onBackground, fontSize = 16.sp)
+                    Text("Start logging from the dashboard", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f), fontSize = 13.sp)
                 }
             }
         } else {
             LazyColumn(
-                modifier = Modifier.fillMaxSize().background(DeepCharcoal).hazeSource(LocalHazeState.current),
+                modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).hazeSource(LocalHazeState.current),
                 contentPadding = PaddingValues(
                     top = innerPadding.calculateTopPadding(),
                     bottom = innerPadding.calculateBottomPadding() + 80.dp // To account for floating nav bar
@@ -176,11 +171,11 @@ fun LogSessionsScreen(
                             Box(
                                 modifier = Modifier
                                     .fillMaxSize()
-                                    .background(NeonRed)
+                                    .background(MaterialTheme.colorScheme.error)
                                     .padding(end = 24.dp),
                                 contentAlignment = Alignment.CenterEnd
                             ) {
-                                Icon(Icons.Filled.Delete, contentDescription = "Delete", tint = Color.White)
+                                Icon(Icons.Filled.Delete, contentDescription = "Delete", tint = MaterialTheme.colorScheme.onSurface)
                             }
                         }
                     ) {
@@ -212,7 +207,7 @@ private fun SessionCard(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .background(DeepCharcoal)
+            .background(MaterialTheme.colorScheme.background)
             .bounceClick(onClick = onClick)
             .padding(horizontal = 24.dp, vertical = 14.dp)
     ) {
@@ -225,26 +220,26 @@ private fun SessionCard(
                 Box(
                     modifier = Modifier
                         .size(40.dp)
-                        .background(CharcoalSurface, RoundedCornerShape(10.dp)),
+                        .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(10.dp)),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = Icons.Filled.DirectionsCar,
                         contentDescription = null,
-                        tint = ElectricBlue,
+                        tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(22.dp)
                     )
                 }
                 Column(modifier = Modifier.padding(start = 14.dp)) {
                     Text(
                         text = session.carLabel,
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 15.sp
                     )
                     Text(
                         text = dateFormat.format(Date(session.startTimeMs)),
-                        color = LightGrayText,
+                        color = MaterialTheme.colorScheme.onBackground,
                         fontSize = 12.sp
                     )
                 }
@@ -252,12 +247,12 @@ private fun SessionCard(
             Column(horizontalAlignment = Alignment.End) {
                 Text(
                     text = durationStr,
-                    color = ElectricBlue,
+                    color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Medium,
                     fontSize = 14.sp
                 )
                 if (session.isActive) {
-                    Text("Recording", color = Color(0xFFFF2D55), fontSize = 11.sp)
+                    Text("Recording", color = MaterialTheme.colorScheme.error, fontSize = 11.sp)
                 }
             }
         }
@@ -266,6 +261,6 @@ private fun SessionCard(
         modifier = Modifier
             .fillMaxWidth()
             .height(0.5.dp)
-            .background(Color.White.copy(alpha = 0.05f))
+            .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.05f))
     )
 }

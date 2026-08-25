@@ -94,11 +94,11 @@ fun MaintenanceScreen(
         Box(modifier = Modifier.fillMaxSize()) {
             if (state.activeCar == null) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("Please select a vehicle on the Dashboard.", color = Color.Gray)
+                    Text("Please select a vehicle on the Dashboard.", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f))
                 }
             } else if (state.logs.isEmpty() && !state.isLoading) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("No logs found. Tap + to add.", color = Color.Gray)
+                    Text("No logs found. Tap + to add.", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f))
                 }
             } else {
                 LazyColumn(
@@ -234,7 +234,7 @@ fun TimelineMaintenanceLogItem(log: MaintenanceLog, useMetric: Boolean) {
                     .width(2.dp)
                     .weight(1f, fill = false)
                     .height(150.dp) // Ensures a line connects down to the next item
-                    .background(Color.Gray.copy(alpha = 0.3f))
+                    .background(MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f).copy(alpha = 0.3f))
             )
         }
 
@@ -290,7 +290,7 @@ fun TimelineMaintenanceLogItem(log: MaintenanceLog, useMetric: Boolean) {
                 val unitLabel = if (useMetric) "km" else "mi"
                 Text(
                     text = "Mileage: ${log.mileage} $unitLabel",
-                    color = Color.LightGray,
+                    color = MaterialTheme.colorScheme.onBackground,
                     style = MaterialTheme.typography.bodySmall,
                     modifier = Modifier.padding(top = 8.dp)
                 )

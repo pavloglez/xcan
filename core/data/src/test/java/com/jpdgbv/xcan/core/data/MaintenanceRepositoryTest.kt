@@ -1,5 +1,6 @@
 package com.jpdgbv.xcan.core.data
 
+import com.jpdgbv.xcan.core.model.DispatcherProvider
 import com.jpdgbv.xcan.core.database.dao.MaintenanceDao
 import com.jpdgbv.xcan.core.database.entity.MaintenanceLogEntity
 import com.jpdgbv.xcan.core.model.CarProfile
@@ -12,6 +13,7 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -23,7 +25,10 @@ class MaintenanceRepositoryTest {
     private lateinit var maintenanceDao: MaintenanceDao
     private lateinit var apiService: XCanApiService
     private lateinit var carRepository: CarRepository
+    private lateinit var dispatcherProvider: DispatcherProvider
     private lateinit var maintenanceRepository: MaintenanceRepository
+
+    private val testDispatcher = StandardTestDispatcher()
 
     @Before
     fun setup() {
@@ -31,14 +36,20 @@ class MaintenanceRepositoryTest {
         apiService = mockk(relaxed = true)
         carRepository = mockk(relaxed = true)
         
+        dispatcherProvider = object : DispatcherProvider {
+            override val main = testDispatcher
+            override val io = testDispatcher
+            override val default = testDispatcher
+        }
+        
         val activeCar = CarProfile("car1", "My Car", "Make", "Model", 2020, true)
         every { carRepository.getActiveCar() } returns flowOf(activeCar)
         
-        maintenanceRepository = MaintenanceRepository(maintenanceDao, apiService, carRepository)
+        maintenanceRepository = MaintenanceRepository(dispatcherProvider, maintenanceDao, apiService, carRepository)
     }
 
     @Test
-    fun `addLog inserts log into database with mapped entity`() = runTest {
+    fun `addLog inserts log into database with mapped entity`() = runTest(testDispatcher) {
         // Given
         val log = MaintenanceLog(
             id = UUID.randomUUID().toString(),
@@ -67,7 +78,7 @@ class MaintenanceRepositoryTest {
     }
 
     @Test
-    fun `getAllLogs returns mapped models from dao flow`() = runTest {
+    fun `getAllLogs returns mapped models from dao flow`() = runTest(testDispatcher) {
         // Given
         val entity = MaintenanceLogEntity(
             id = "1",
@@ -91,7 +102,7 @@ class MaintenanceRepositoryTest {
     }
 
     @Test
-    fun `syncLogs fetches from api and inserts to dao`() = runTest {
+    fun `syncLogs fetches from api and inserts to dao`() = runTest(testDispatcher) {
         // Given
         val dto = MaintenanceLogDto(
             id = "1",

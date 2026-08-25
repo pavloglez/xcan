@@ -6,18 +6,20 @@ import com.jpdgbv.xcan.core.database.entity.toEntity
 import com.jpdgbv.xcan.core.model.MaintenanceLog
 import com.jpdgbv.xcan.core.network.XCanApiService
 import com.jpdgbv.xcan.core.network.model.toDomainModel
-import kotlinx.coroutines.Dispatchers
+
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest
+import com.jpdgbv.xcan.core.model.DispatcherProvider
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 
 class MaintenanceRepository @Inject constructor(
+    private val dispatchers: DispatcherProvider,
     private val maintenanceDao: MaintenanceDao,
     private val apiService: XCanApiService,
     private val carRepository: CarRepository
@@ -37,13 +39,13 @@ class MaintenanceRepository @Inject constructor(
     }
 
     suspend fun addLog(log: MaintenanceLog) {
-        withContext(Dispatchers.IO) {
+        withContext(dispatchers.io) {
             maintenanceDao.insertLog(log.toEntity())
         }
     }
 
     suspend fun syncLogs() {
-        withContext(Dispatchers.IO) {
+        withContext(dispatchers.io) {
             try {
                 val remoteLogs = apiService.fetchMaintenanceLogs()
                 maintenanceDao.insertLogs(remoteLogs.map { it.toDomainModel().toEntity() })

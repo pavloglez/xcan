@@ -1,6 +1,7 @@
 package com.jpdgbv.xcan.feature.dashboard.ui
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -46,11 +47,8 @@ import com.jpdgbv.xcan.core.ui.components.bounceClick
 import com.jpdgbv.xcan.core.ui.glassmorphism
 import kotlinx.coroutines.delay
 
-private val ElectricBlue = Color(0xFF00C8FF)
-private val NeonRed = Color(0xFFFF2D55)
-private val Amber = Color(0xFFFFBF00)
-private val GlassWhite = Color.White.copy(alpha = 0.12f)
-private val GlassBorder = Color.White.copy(alpha = 0.18f)
+private val GlassWhite = Color(0xFFFFFFFF).copy(alpha = 0.12f)
+private val GlassBorder = Color(0xFFFFFFFF).copy(alpha = 0.18f)
 
 @Composable
 fun LogFloatingControl(
@@ -65,9 +63,9 @@ fun LogFloatingControl(
 
     val accentColor by animateColorAsState(
         targetValue = when (loggingState) {
-            is LoggingState.Recording -> NeonRed
-            is LoggingState.Paused -> Amber
-            LoggingState.Idle -> ElectricBlue
+            is LoggingState.Recording -> MaterialTheme.colorScheme.error
+            is LoggingState.Paused -> MaterialTheme.colorScheme.secondary
+            LoggingState.Idle -> MaterialTheme.colorScheme.primary
         },
         animationSpec = tween(300),
         label = "accentColor"
@@ -146,7 +144,7 @@ fun LogFloatingControl(
                 ) { paused ->
                     Text(
                         text = if (paused) "Paused" else "%02d:%02d".format(mins, secs),
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontWeight = FontWeight.Medium,
                         fontFamily = FontFamily.Monospace,
                         fontSize = 14.sp
@@ -163,7 +161,7 @@ fun LogFloatingControl(
                     Icon(
                         imageVector = if (isPaused) Icons.Filled.PlayArrow else Icons.Filled.Pause,
                         contentDescription = if (isPaused) "Resume" else "Pause",
-                        tint = Color.White,
+                        tint = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.size(18.dp)
                     )
                 }
@@ -177,7 +175,7 @@ fun LogFloatingControl(
                     Icon(
                         imageVector = Icons.Filled.Stop,
                         contentDescription = "Stop",
-                        tint = NeonRed,
+                        tint = MaterialTheme.colorScheme.error,
                         modifier = Modifier.size(18.dp)
                     )
                 }

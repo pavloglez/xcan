@@ -7,16 +7,18 @@ import com.jpdgbv.xcan.core.database.entity.LogSessionEntity
 import com.jpdgbv.xcan.core.database.entity.toDomainModel
 import com.jpdgbv.xcan.core.model.LogEntry
 import com.jpdgbv.xcan.core.model.LogSession
-import kotlinx.coroutines.Dispatchers
+
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import java.util.UUID
+import com.jpdgbv.xcan.core.model.DispatcherProvider
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class LoggingRepository @Inject constructor(
+    private val dispatchers: DispatcherProvider,
     private val logSessionDao: LogSessionDao,
     private val logEntryDao: LogEntryDao
 ) {
@@ -36,7 +38,7 @@ class LoggingRepository @Inject constructor(
 
     suspend fun startSession(carId: String, carLabel: String): String {
         val id = UUID.randomUUID().toString()
-        withContext(Dispatchers.IO) {
+        withContext(dispatchers.io) {
             logSessionDao.insertSession(
                 LogSessionEntity(
                     id = id,
@@ -50,21 +52,21 @@ class LoggingRepository @Inject constructor(
     }
 
     suspend fun pauseSession(sessionId: String) {
-        withContext(Dispatchers.IO) {
+        withContext(dispatchers.io) {
             val session = logSessionDao.getActiveSession() ?: return@withContext
             logSessionDao.updateSession(session.copy(isPaused = true))
         }
     }
 
     suspend fun resumeSession(sessionId: String) {
-        withContext(Dispatchers.IO) {
+        withContext(dispatchers.io) {
             val session = logSessionDao.getActiveSession() ?: return@withContext
             logSessionDao.updateSession(session.copy(isPaused = false))
         }
     }
 
     suspend fun stopSession(sessionId: String) {
-        withContext(Dispatchers.IO) {
+        withContext(dispatchers.io) {
             val session = logSessionDao.getActiveSession() ?: return@withContext
             logSessionDao.updateSession(
                 session.copy(endTimeMs = System.currentTimeMillis(), isPaused = false)
@@ -73,7 +75,7 @@ class LoggingRepository @Inject constructor(
     }
 
     suspend fun record(sessionId: String, pid: String, value: Float) {
-        withContext(Dispatchers.IO) {
+        withContext(dispatchers.io) {
             logEntryDao.insertEntry(
                 LogEntryEntity(
                     sessionId = sessionId,
@@ -95,13 +97,13 @@ class LoggingRepository @Inject constructor(
                 value = value
             )
         }
-        withContext(Dispatchers.IO) {
+        withContext(dispatchers.io) {
             logEntryDao.insertEntries(entries)
         }
     }
 
     suspend fun deleteSession(session: LogSession) {
-        withContext(Dispatchers.IO) {
+        withContext(dispatchers.io) {
             logSessionDao.deleteSession(
                 LogSessionEntity(
                     id = session.id,
@@ -116,13 +118,13 @@ class LoggingRepository @Inject constructor(
     }
 
     suspend fun deleteAllSessions() {
-        withContext(Dispatchers.IO) {
+        withContext(dispatchers.io) {
             logSessionDao.deleteAllSessions()
         }
     }
 
     suspend fun getEntryCount(sessionId: String): Int =
-        withContext(Dispatchers.IO) {
+        withContext(dispatchers.io) {
             logEntryDao.getEntryCountForSession(sessionId)
         }
 }

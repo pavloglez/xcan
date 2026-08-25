@@ -9,7 +9,7 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        minSdk = 26
+        minSdk = 33
     }
 
     compileOptions {
@@ -22,6 +22,8 @@ dependencies {
     implementation(project(":core:model"))
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
+    implementation(libs.sqlcipher)
+    implementation(libs.androidx.security.crypto)
     ksp(libs.room.compiler)
     implementation("com.google.code.gson:gson:2.10.1")
     

@@ -1,6 +1,7 @@
 package com.jpdgbv.xcan.feature.diagnostics
 
 import androidx.compose.foundation.background
+import androidx.compose.material3.MaterialTheme
 import com.jpdgbv.xcan.core.ui.components.pressBounce
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
@@ -113,7 +114,7 @@ fun DiagnosticsScreen(
                 ) {
                     if (state.scanStatus == ScanStatus.SCANNING) {
                         CircularProgressIndicator(
-                            color = Color.White,
+                            color = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.size(24.dp)
                         )
                         Spacer(modifier = Modifier.width(8.dp))
@@ -134,7 +135,7 @@ fun DiagnosticsScreen(
                     ) {
                         if (state.scanStatus == ScanStatus.CLEARING) {
                             CircularProgressIndicator(
-                                color = Color.White,
+                                color = MaterialTheme.colorScheme.onSurface,
                                 modifier = Modifier.size(24.dp)
                             )
                             Spacer(modifier = Modifier.width(8.dp))

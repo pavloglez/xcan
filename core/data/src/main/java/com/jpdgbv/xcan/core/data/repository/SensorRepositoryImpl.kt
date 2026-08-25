@@ -26,7 +26,7 @@ class SensorRepositoryImpl @Inject constructor() : SensorRepository {
     )
 
     // In a real app, this would be backed by Room. For now, it's just in memory.
-    private val customSensors = mutableListOf<ObdSensor>()
+    private val customSensors = java.util.concurrent.CopyOnWriteArrayList<ObdSensor>()
     private val _sensors = MutableStateFlow(standardSensors + customSensors)
 
     override fun getSensors(): Flow<List<ObdSensor>> = _sensors.asStateFlow()

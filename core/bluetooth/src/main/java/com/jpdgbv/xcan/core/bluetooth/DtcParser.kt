@@ -15,7 +15,8 @@ object DtcParser {
      * For simplicity in this mockup, we'll extract pairs of hex bytes after the expected response header.
      */
     fun parse(hexResponse: String, type: DtcType): List<DiagnosticTroubleCode> {
-        val uppercaseResp = hexResponse.uppercase()
+        try {
+            val uppercaseResp = hexResponse.uppercase()
         if (uppercaseResp.isEmpty() || uppercaseResp.contains("NODATA") || uppercaseResp.contains("ERROR")) {
             return emptyList()
         }
@@ -57,6 +58,9 @@ object DtcParser {
         }
 
         return codes
+        } catch (e: Exception) {
+            return emptyList()
+        }
     }
 
     private fun decodeDtc(hex: String): String {

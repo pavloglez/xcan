@@ -31,7 +31,7 @@ class MaintenanceScreenTest {
             )
         }
 
-        composeTestRule.onNodeWithText("Maintenance History").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Maintenance - Car 1").assertIsDisplayed()
         composeTestRule.onNodeWithText("No logs found. Tap + to add.").assertIsDisplayed()
     }
 

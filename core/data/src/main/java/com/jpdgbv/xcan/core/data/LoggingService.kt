@@ -28,8 +28,9 @@ class LoggingService : Service() {
 
     @Inject lateinit var loggingRepository: LoggingRepository
     @Inject lateinit var bleDataSource: BleDataSource
+    @Inject lateinit var dispatcherProvider: com.jpdgbv.xcan.core.model.DispatcherProvider
 
-    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private lateinit var serviceScope: CoroutineScope
     private var loggingJob: Job? = null
 
     companion object {
@@ -77,6 +78,7 @@ class LoggingService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        serviceScope = CoroutineScope(SupervisorJob() + dispatcherProvider.io)
         createNotificationChannel()
     }
 

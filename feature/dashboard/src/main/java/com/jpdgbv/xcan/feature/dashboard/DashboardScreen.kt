@@ -98,10 +98,36 @@ import com.jpdgbv.xcan.core.bluetooth.ConnectionStatus
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardRoute(
-    viewModel: DashboardViewModel = hiltViewModel()
+    viewModel: DashboardViewModel = hiltViewModel(),
+    connectionViewModel: ConnectionViewModel = hiltViewModel(),
+    carProfileViewModel: CarProfileViewModel = hiltViewModel(),
+    loggingViewModel: LoggingViewModel = hiltViewModel()
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
-    val state by viewModel.state.collectAsStateWithLifecycle()
+    val dashboardState by viewModel.state.collectAsStateWithLifecycle()
+    val connectionState by connectionViewModel.state.collectAsStateWithLifecycle()
+    val carState by carProfileViewModel.state.collectAsStateWithLifecycle()
+    val loggingViewState by loggingViewModel.state.collectAsStateWithLifecycle()
+    
+    // Combine into a single facade state for DashboardScreen compatibility
+    val state = remember(dashboardState, connectionState, carState, loggingViewState) {
+        DashboardUIState(
+            connectionStatus = connectionState.connectionStatus,
+            telemetry = if (connectionState.isConnected) dashboardState.telemetry else null,
+            connectionLogs = connectionState.connectionLogs,
+            discoveredDevices = connectionState.discoveredDevices,
+            isScanning = connectionState.isScanning,
+            cars = carState.cars,
+            activeCar = carState.activeCar,
+            useMetric = dashboardState.useMetric,
+            supportedSensors = dashboardState.supportedSensors,
+            selectedSensors = dashboardState.selectedSensors,
+            allKnownSensors = dashboardState.allKnownSensors,
+            loggingState = loggingViewState.loggingState,
+            isTrackMode = dashboardState.isTrackMode
+        )
+    }
+
     var showDialog by remember { mutableStateOf(false) }
     var showAddCarDialog by remember { mutableStateOf(false) }
     var showCarSelectDialog by remember { mutableStateOf(false) }
@@ -145,27 +171,23 @@ fun DashboardRoute(
             }
             if (hasRequired) {
                 showDialog = true
-                viewModel.onIntent(DashboardIntent.StartScanning)
+                connectionViewModel.startScanning()
             } else {
                 android.widget.Toast.makeText(context, "Bluetooth permissions are required", android.widget.Toast.LENGTH_LONG).show()
             }
         }
     )
 
-    androidx.compose.runtime.LaunchedEffect(Unit) {
-        viewModel.onIntent(DashboardIntent.ScanSensors)
-    }
-
     if (showDialog) {
         DeviceSelectionDialog(
             devices = state.discoveredDevices,
             onDeviceSelected = { mac ->
                 showDialog = false
-                viewModel.onIntent(DashboardIntent.Connect(mac))
+                connectionViewModel.connect(mac)
             },
             onDismiss = { 
                 showDialog = false
-                viewModel.onIntent(DashboardIntent.StopScanning)
+                connectionViewModel.stopScanning()
             }
         )
     }
@@ -182,7 +204,7 @@ fun DashboardRoute(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .bounceClick { 
-                                    viewModel.onIntent(DashboardIntent.SelectCar(car.id))
+                                    carProfileViewModel.selectCar(car.id)
                                     showCarSelectDialog = false
                                 }
                                 .padding(vertical = 12.dp),
@@ -250,7 +272,7 @@ fun DashboardRoute(
             },
             confirmButton = {
                 Button(onClick = {
-                    viewModel.onIntent(DashboardIntent.AddCar(make, model, year.toIntOrNull() ?: 2000))
+                    carProfileViewModel.addCar(make, model, year.toIntOrNull() ?: 2000)
                     showAddCarDialog = false
                 }) {
                     Text("Add")
@@ -279,7 +301,7 @@ fun DashboardRoute(
             sheetState = configSheetState,
             onToggleSensor = { pid, checked ->
                 val newSet = if (checked) state.selectedSensors + pid else state.selectedSensors - pid
-                viewModel.onIntent(DashboardIntent.SetSelectedSensors(newSet))
+                viewModel.setSelectedSensors(newSet)
             },
             onDismiss = { showConfigSheet = false }
         )
@@ -292,7 +314,7 @@ fun DashboardRoute(
             sheetState = carPickerSheetState,
             onCarSelected = { car ->
                 showCarPickerForLogging = false
-                viewModel.onIntent(DashboardIntent.StartLogging(car.id, car.name))
+                loggingViewModel.startLogging(car.id, car.name)
             },
             onDismiss = { showCarPickerForLogging = false }
         )
@@ -303,12 +325,12 @@ fun DashboardRoute(
         onConnect = {
             if (hasPermissions) {
                 showDialog = true
-                viewModel.onIntent(DashboardIntent.StartScanning)
+                connectionViewModel.startScanning()
             } else {
                 permissionLauncher.launch(permissions.toTypedArray())
             }
         },
-        onDisconnect = { viewModel.onIntent(DashboardIntent.Disconnect) },
+        onDisconnect = { connectionViewModel.disconnect() },
         onShowCarSelect = { showCarSelectDialog = true },
         onShowLogs = { showLogsDialog = true },
         onShowConfig = { showConfigSheet = true },
@@ -319,10 +341,10 @@ fun DashboardRoute(
                 showCarPickerForLogging = true
             }
         },
-        onPauseLog = { viewModel.onIntent(DashboardIntent.PauseLogging) },
-        onResumeLog = { viewModel.onIntent(DashboardIntent.ResumeLogging) },
-        onStopLog = { viewModel.onIntent(DashboardIntent.StopLogging) },
-        onToggleTrackMode = { viewModel.onIntent(DashboardIntent.ToggleTrackMode) }
+        onPauseLog = { loggingViewModel.pauseLogging() },
+        onResumeLog = { loggingViewModel.resumeLogging() },
+        onStopLog = { loggingViewModel.stopLogging() },
+        onToggleTrackMode = { viewModel.toggleTrackMode() }
     )
 }
 
@@ -348,7 +370,7 @@ fun DeviceSelectionDialog(
                                 .padding(vertical = 12.dp)
                         ) {
                             Text(device.name, fontWeight = FontWeight.Bold)
-                            Text(device.macAddress, fontSize = 12.sp, color = Color.Gray)
+                            Text(device.macAddress, fontSize = 12.sp, color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f))
                         }
                     }
                 }
@@ -365,7 +387,7 @@ fun DeviceSelectionDialog(
 
 @Composable
 fun DashboardScreen(
-    state: DashboardState,
+    state: DashboardUIState,
     onConnect: () -> Unit,
     onDisconnect: () -> Unit,
     onShowCarSelect: () -> Unit,
@@ -387,11 +409,11 @@ fun DashboardScreen(
                 titleContent = {
                     if (state.isTrackMode) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text("XCan ", color = Color.White)
+                            Text("XCan ", color = MaterialTheme.colorScheme.onSurface)
                             Text("Track", color = neonRed, fontWeight = FontWeight.Bold)
                         }
                     } else {
-                        Text(defaultTitle, color = Color.White)
+                        Text(defaultTitle, color = MaterialTheme.colorScheme.onSurface)
                     }
                 },
                 actions = {
@@ -471,7 +493,7 @@ fun DashboardScreen(
                             Box(contentAlignment = Alignment.Center) {
                                 Text(
                                     text = "TRACK",
-                                    color = Color.White,
+                                    color = MaterialTheme.colorScheme.onSurface,
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.Bold,
                                     modifier = Modifier.padding(horizontal = 12.dp)
@@ -568,7 +590,7 @@ fun DashboardScreen(
                         modifier = Modifier.alpha(alpha),
                         colors = ButtonDefaults.buttonColors(
                             disabledContainerColor = ElectricBlue,
-                            disabledContentColor = Color.White
+                            disabledContentColor = MaterialTheme.colorScheme.onSurface
                         )
                     ) {
                         Text("Connecting...")
@@ -648,7 +670,7 @@ fun TelemetryDial(
             }) {
                 // Background track
                 drawArc(
-                    color = Color.DarkGray.copy(alpha = 0.4f),
+                    color = Color.White.copy(alpha = 0.3f).copy(alpha = 0.4f),
                     startAngle = 0f,
                     sweepAngle = 240f,
                     useCenter = false,
@@ -760,13 +782,13 @@ fun TelemetryDial(
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
                 text = value.toInt().toString(),
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onSurface,
                 fontSize = if (isTrackMode) 40.sp else 24.sp,
                 fontWeight = if (isTrackMode) FontWeight.Black else FontWeight.Bold
             )
             Text(
                 text = label,
-                color = Color.Gray,
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
                 fontSize = if (isTrackMode) 16.sp else 12.sp,
                 fontWeight = if (isTrackMode) FontWeight.Bold else FontWeight.Normal
             )
@@ -775,7 +797,7 @@ fun TelemetryDial(
         
         Text(
             text = title,
-            color = Color.LightGray,
+            color = MaterialTheme.colorScheme.onBackground,
             fontSize = if (isTrackMode) 18.sp else 14.sp,
             fontWeight = if (isTrackMode) FontWeight.Bold else FontWeight.Medium,
             modifier = Modifier.padding( bottom = 8.dp)
@@ -794,7 +816,7 @@ fun ConnectionLogsDialog(
         title = { Text("Connection Logs") },
         text = {
             if (logs.isEmpty()) {
-                Text("No logs available.", color = Color.Gray)
+                Text("No logs available.", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f))
             } else {
                 LazyColumn(modifier = Modifier.fillMaxWidth().height(300.dp)) {
                     items(logs) { log ->
@@ -821,7 +843,7 @@ fun ConnectionLogsDialog(
 fun DashboardScreenPreview() {
     XCanTheme {
         DashboardScreen(
-            state = DashboardState(
+            state = DashboardUIState(
                 connectionStatus = ConnectionStatus.CONNECTED,
                 activeCar = CarProfile(id = "1", name = "Test Car", make = "Toyota", model = "Camry", year = 2020, isActive = true),
                 useMetric = true,

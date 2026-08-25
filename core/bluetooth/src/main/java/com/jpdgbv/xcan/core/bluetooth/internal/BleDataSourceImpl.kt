@@ -32,13 +32,35 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.cancelAndJoin
 import com.jpdgbv.xcan.core.model.SensorRepository
+import com.jpdgbv.xcan.core.model.DispatcherProvider
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class BleDataSourceImpl @Inject constructor(
-    private val sensorRepo: SensorRepository
+    private val sensorRepo: SensorRepository,
+    private val dispatcherProvider: DispatcherProvider,
+    private val obdParser: ObdParser
 ) : BleDataSource {
+
+    private val currentSensors = mutableMapOf<String, Float>()
+
+    private fun maskMac(mac: String): String {
+        return if (mac.matches(Regex("([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})"))) {
+            "XX:XX:XX:XX:" + mac.takeLast(5)
+        } else {
+            mac
+        }
+    }
+
+    private suspend fun safeWrite(txCharacteristic: com.juul.kable.Characteristic, data: String) {
+        val cleanData = data.trim().replace("\r", "")
+        if (!cleanData.matches(Regex("^[0-9A-Fa-f]{2,6}$"))) {
+            log("Security Warning: Blocked potentially malicious PID: $cleanData")
+            return
+        }
+        peripheral?.write(txCharacteristic, "$cleanData\r".toByteArray())
+    }
 
     private var peripheral: Peripheral? = null
     private var connectionJob: Job? = null
@@ -53,7 +75,7 @@ class BleDataSourceImpl @Inject constructor(
     private val _connectionLogs = MutableSharedFlow<String>(extraBufferCapacity = 50)
     override val connectionLogs: Flow<String> = _connectionLogs.asSharedFlow()
 
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val scope = CoroutineScope(SupervisorJob() + dispatcherProvider.io)
 
     private var activePids = listOf("010C", "010D", "0104", "0105")
 
@@ -65,8 +87,7 @@ class BleDataSourceImpl @Inject constructor(
         _connectionLogs.tryEmit(message)
     }
 
-    @SuppressLint("MissingPermission")
-    override fun scanForDevices(): Flow<List<ScannedDevice>> {
+        override fun scanForDevices(): Flow<List<ScannedDevice>> {
         return Scanner().advertisements
             .filter { advertisement ->
                 val name = advertisement.name?.uppercase() ?: ""
@@ -79,8 +100,7 @@ class BleDataSourceImpl @Inject constructor(
             .catch { emit(emptyList()) }
     }
 
-    @SuppressLint("MissingPermission")
-    override suspend fun connect(macAddress: String) {
+        override suspend fun connect(macAddress: String) {
         connectionJob?.cancel()
         pollingJob?.cancel()
         
@@ -151,8 +171,13 @@ class BleDataSourceImpl @Inject constructor(
                             for (line in lines) {
                                 val cleanLine = line.trim()
                                 if (cleanLine.isNotEmpty()) {
-                                    ObdParser.parse(cleanLine, sensorRepo)?.let { newFrame ->
-                                        _telemetry.value = newFrame
+                                    obdParser.parse(cleanLine)?.let { pair ->
+                                        currentSensors[pair.first] = pair.second
+                                        _telemetry.value = TelemetryFrame(
+                                            id = java.util.UUID.randomUUID().toString(),
+                                            timestampMs = System.currentTimeMillis(),
+                                            sensors = currentSensors.toMap()
+                                        )
                                     }
                                 }
                             }
@@ -170,7 +195,7 @@ class BleDataSourceImpl @Inject constructor(
                     }
                     for (pid in pidsToPoll) {
                         log("Tx: $pid")
-                        peripheral?.write(txCharacteristic, "$pid\r".toByteArray())
+                        safeWrite(txCharacteristic, pid)
                         delay(250) // Wait before next request to avoid overwhelming
                     }
                 }
@@ -218,7 +243,7 @@ class BleDataSourceImpl @Inject constructor(
             // Helper to collect one response
             suspend fun getResponseFor(req: String): String {
                 var response = ""
-                peripheral?.write(txCharacteristic, "$req\r".toByteArray())
+                safeWrite(txCharacteristic, req)
                 try {
                     withTimeout(3000) {
                         peripheral?.observe(rxCharacteristic)?.takeWhile { bytes ->
@@ -270,7 +295,7 @@ class BleDataSourceImpl @Inject constructor(
         var success = false
         try {
             var response = ""
-            peripheral?.write(txCharacteristic, "04\r".toByteArray())
+            safeWrite(txCharacteristic, "04")
             try {
                 withTimeout(3000) {
                     peripheral?.observe(rxCharacteristic)?.takeWhile { bytes ->
@@ -313,7 +338,7 @@ class BleDataSourceImpl @Inject constructor(
         try {
             suspend fun getResponseFor(req: String): String {
                 var response = ""
-                peripheral?.write(txCharacteristic, "$req\r".toByteArray())
+                safeWrite(txCharacteristic, req)
                 try {
                     withTimeout(3000) {
                         peripheral?.observe(rxCharacteristic)?.takeWhile { bytes ->

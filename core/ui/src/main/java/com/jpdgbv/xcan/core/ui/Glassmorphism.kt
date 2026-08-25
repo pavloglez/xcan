@@ -26,8 +26,8 @@ val LocalHazeState = androidx.compose.runtime.compositionLocalOf { HazeState() }
 fun Modifier.glassmorphism(
     hazeState: HazeState,
     shape: Shape = RoundedCornerShape(24.dp),
-    backgroundColor: Color = Color.White.copy(alpha = 0.05f),
-    borderColor: Color = Color.White.copy(alpha = 0.15f),
+    backgroundColor: Color = Color(0xFFFFFFFF).copy(alpha = 0.05f),
+    borderColor: Color = Color(0xFFFFFFFF).copy(alpha = 0.15f),
     borderWidth: androidx.compose.ui.unit.Dp = 1.dp
 ): Modifier = this
     .clip(shape)

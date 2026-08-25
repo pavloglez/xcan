@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.core.tween
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
@@ -45,6 +46,7 @@ import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.toRoute
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.jpdgbv.xcan.core.ui.LocalHazeState
@@ -56,12 +58,12 @@ import com.jpdgbv.xcan.core.ui.theme.LightGrayText
 import com.jpdgbv.xcan.core.ui.theme.XCanDuration
 import com.jpdgbv.xcan.core.ui.theme.XCanEasing
 import com.jpdgbv.xcan.core.ui.theme.XCanTheme
-import com.jpdgbv.xcan.feature.config.ConfigRoute
-import com.jpdgbv.xcan.feature.dashboard.DashboardRoute
-import com.jpdgbv.xcan.feature.diagnostics.DiagnosticsRoute
-import com.jpdgbv.xcan.feature.maintenance.MaintenanceRoute
-import com.jpdgbv.xcan.feature.logging.LogSessionDetailRoute
-import com.jpdgbv.xcan.feature.logging.LogSessionsRoute
+import com.jpdgbv.xcan.feature.config.ConfigRoute as ConfigScreen
+import com.jpdgbv.xcan.feature.dashboard.DashboardRoute as DashboardScreen
+import com.jpdgbv.xcan.feature.diagnostics.DiagnosticsRoute as DiagnosticsScreen
+import com.jpdgbv.xcan.feature.maintenance.MaintenanceRoute as MaintenanceScreen
+import com.jpdgbv.xcan.feature.logging.LogSessionDetailRoute as LogSessionDetailScreen
+import com.jpdgbv.xcan.feature.logging.LogSessionsRoute as LogSessionsScreen
 import dagger.hilt.android.AndroidEntryPoint
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.hazeSource
@@ -78,17 +80,17 @@ class MainActivity : ComponentActivity() {
 
                 CompositionLocalProvider(LocalHazeState provides hazeState) {
                     val topLevelRoutes = listOf(
-                        Triple("diagnostics", "Diagnostics", Icons.Filled.Warning),
-                        Triple("maintenance", "Maintenance", Icons.Filled.Build),
-                        Triple("dashboard", "Dashboard", Icons.Filled.Home),
-                        Triple("log_sessions", "Logs", Icons.Filled.History),
-                        Triple("config", "Config", Icons.Filled.Settings)
+                        Triple(DiagnosticsRoute::class, "Diagnostics", Icons.Filled.Warning),
+                        Triple(MaintenanceRoute::class, "Maintenance", Icons.Filled.Build),
+                        Triple(DashboardRoute::class, "Dashboard", Icons.Filled.Home),
+                        Triple(LogSessionsRoute::class, "Logs", Icons.Filled.History),
+                        Triple(ConfigRoute::class, "Config", Icons.Filled.Settings)
                     )
 
                     Scaffold(
                         modifier = Modifier.fillMaxSize(),
                         containerColor = CharcoalSurface,
-                        contentColor = Color.White
+                        contentColor = MaterialTheme.colorScheme.onSurface
                     ) { innerPadding ->
                         Box(modifier = Modifier.fillMaxSize()) {
                             // Main content area - we only apply top padding so content flows under the bottom bar
@@ -98,7 +100,7 @@ class MainActivity : ComponentActivity() {
                             ) {
                                 NavHost(
                                     navController = navController,
-                                    startDestination = "dashboard",
+                                    startDestination = DashboardRoute,
                                     modifier = Modifier.fillMaxSize(),
                                     enterTransition = {
                                         fadeIn(tween(XCanDuration.Standard, easing = XCanEasing.EaseOut)) +
@@ -115,20 +117,20 @@ class MainActivity : ComponentActivity() {
                                         fadeOut(tween(XCanDuration.Standard, easing = XCanEasing.EaseOut))
                                     }
                                 ) {
-                                    composable("diagnostics") { DiagnosticsRoute() }
-                                    composable("maintenance") { MaintenanceRoute() }
-                                    composable("dashboard") { DashboardRoute() }
-                                    composable("config") { ConfigRoute() }
-                                    composable("log_sessions") {
-                                        LogSessionsRoute(
+                                    composable<DiagnosticsRoute> { DiagnosticsScreen() }
+                                    composable<MaintenanceRoute> { MaintenanceScreen() }
+                                    composable<DashboardRoute> { DashboardScreen() }
+                                    composable<ConfigRoute> { ConfigScreen() }
+                                    composable<LogSessionsRoute> {
+                                        LogSessionsScreen(
                                             onSessionClick = { sessionId ->
-                                                navController.navigate("log_session_detail/$sessionId")
+                                                navController.navigate(LogSessionDetailRoute(sessionId = sessionId))
                                             }
                                         )
                                     }
-                                    composable("log_session_detail/{sessionId}") { backStack ->
-                                        val sessionId = backStack.arguments?.getString("sessionId") ?: return@composable
-                                        LogSessionDetailRoute(sessionId = sessionId)
+                                    composable<LogSessionDetailRoute> { backStack ->
+                                        val route = backStack.toRoute<LogSessionDetailRoute>()
+                                        LogSessionDetailScreen(sessionId = route.sessionId)
                                     }
                                 }
                             }
@@ -137,7 +139,7 @@ class MainActivity : ComponentActivity() {
                             val navBackStackEntry by navController.currentBackStackEntryAsState()
                             val currentDestination = navBackStackEntry?.destination
                             // Hide bottom bar on details screens
-                            val isDetail = currentDestination?.route?.startsWith("log_session_detail") == true
+                            val isDetail = currentDestination?.route?.contains("LogSessionDetailRoute") == true
                             
                             if (!isDetail) {
                                 Box(
@@ -157,7 +159,7 @@ class MainActivity : ComponentActivity() {
                                         topLevelRoutes.forEach { (route, label, icon) ->
                                             NavigationBarItem(
                                                 icon = {
-                                                    val isSelected = currentDestination?.hierarchy?.any { it.route == route } == true
+                                                    val isSelected = currentDestination?.hierarchy?.any { it.route?.contains(route.simpleName ?: "") == true } == true
                                                     Icon(
                                                         imageVector = icon,
                                                         contentDescription = label,
@@ -182,16 +184,24 @@ class MainActivity : ComponentActivity() {
                                                         fontSize = 10.sp
                                                     ) 
                                                 },
-                                                selected = currentDestination?.hierarchy?.any { it.route == route } == true,
+                                                selected = currentDestination?.hierarchy?.any { it.route?.contains(route.simpleName ?: "") == true } == true,
                                                 colors = NavigationBarItemDefaults.colors(
-                                                    selectedIconColor = Color.White,
+                                                    selectedIconColor = MaterialTheme.colorScheme.onSurface,
                                                     selectedTextColor = ElectricBlue,
                                                     indicatorColor = Color.Transparent,
                                                     unselectedIconColor = LightGrayText,
                                                     unselectedTextColor = LightGrayText
                                                 ),
                                                 onClick = {
-                                                    navController.navigate(route) {
+                                                    val instance = when (route) {
+                                                        DiagnosticsRoute::class -> DiagnosticsRoute
+                                                        MaintenanceRoute::class -> MaintenanceRoute
+                                                        DashboardRoute::class -> DashboardRoute
+                                                        LogSessionsRoute::class -> LogSessionsRoute
+                                                        ConfigRoute::class -> ConfigRoute
+                                                        else -> DashboardRoute
+                                                    }
+                                                    navController.navigate(instance) {
                                                         popUpTo(navController.graph.findStartDestination().id) {
                                                             saveState = true
                                                         }

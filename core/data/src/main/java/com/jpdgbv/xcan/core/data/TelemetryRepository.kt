@@ -4,13 +4,15 @@ import com.jpdgbv.xcan.core.database.dao.TelemetryDao
 import com.jpdgbv.xcan.core.database.entity.toDomainModel
 import com.jpdgbv.xcan.core.database.entity.toEntity
 import com.jpdgbv.xcan.core.model.TelemetryFrame
-import kotlinx.coroutines.Dispatchers
+
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
+import com.jpdgbv.xcan.core.model.DispatcherProvider
 import javax.inject.Inject
 
 class TelemetryRepository @Inject constructor(
+    private val dispatchers: DispatcherProvider,
     private val telemetryDao: TelemetryDao
 ) {
 
@@ -21,13 +23,13 @@ class TelemetryRepository @Inject constructor(
     }
 
     suspend fun recordTelemetry(frame: TelemetryFrame) {
-        withContext(Dispatchers.IO) {
+        withContext(dispatchers.io) {
             telemetryDao.insertTelemetry(frame.toEntity())
         }
     }
 
     suspend fun pruneOldTelemetry(olderThanMs: Long) {
-        withContext(Dispatchers.IO) {
+        withContext(dispatchers.io) {
             telemetryDao.deleteOldTelemetry(olderThanMs)
         }
     }
