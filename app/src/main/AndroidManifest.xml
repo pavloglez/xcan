@@ -33,7 +33,7 @@
             </intent-filter>
         </activity>
         <service
-            android:name="com.jpdgbv.xcan.core.data.LoggingService"
+            android:name="com.pavloglez.xcan.core.data.LoggingService"
             android:foregroundServiceType="dataSync"
             android:exported="false" />
     </application>

@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.jpdgbv.xcan.feature.dashboard"
+    namespace = "com.pavloglez.xcan.feature.dashboard"
     compileSdk = 36
 
     defaultConfig {

@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.jpdgbv.xcan.feature.logging"
+    namespace = "com.pavloglez.xcan.feature.logging"
     compileSdk = 36
 
     defaultConfig {

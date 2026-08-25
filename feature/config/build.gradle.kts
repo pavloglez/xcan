@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.jpdgbv.xcan.feature.config"
+    namespace = "com.pavloglez.xcan.feature.config"
     compileSdk = 36
 
     defaultConfig {

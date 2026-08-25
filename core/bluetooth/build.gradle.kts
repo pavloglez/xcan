@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.jpdgbv.xcan.core.bluetooth"
+    namespace = "com.pavloglez.xcan.core.bluetooth"
     compileSdk = 36
 
     defaultConfig {

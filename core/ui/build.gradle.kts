@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.jpdgbv.xcan.core.ui"
+    namespace = "com.pavloglez.xcan.core.ui"
     compileSdk = 36
 
     defaultConfig {

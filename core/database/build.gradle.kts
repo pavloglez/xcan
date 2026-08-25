@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.jpdgbv.xcan.core.database"
+    namespace = "com.pavloglez.xcan.core.database"
     compileSdk = 36
 
     defaultConfig {

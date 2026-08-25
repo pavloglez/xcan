@@ -464,7 +464,7 @@ The `:app` module contains a full Material theme (`Color.kt`, `Theme.kt`, `Type.
 **File:** [`DatabaseModule.kt`](file:///home/pablo/lab/carSync/core/database/src/main/java/com/jpdgbv/xcan/core/database/di/DatabaseModule.kt)  
 **Severity:** Critical  
 
-The Room database stores **vehicle profiles, maintenance logs, full telemetry history including speed, RPM, location-correlated sensor data, and DTC fault codes**. It is built with the standard `Room.databaseBuilder()`, resulting in a plaintext SQLite file at `/data/data/com.jpdgbv.xcan/databases/xcan.db`.
+The Room database stores **vehicle profiles, maintenance logs, full telemetry history including speed, RPM, location-correlated sensor data, and DTC fault codes**. It is built with the standard `Room.databaseBuilder()`, resulting in a plaintext SQLite file at `/data/data/com.pavloglez.xcan/databases/xcan.db`.
 
 On a rooted device, or via ADB backup on a debug build, this file is fully readable.
 
@@ -499,7 +499,7 @@ The encryption key must be stored in the Android Keystore (never in code or `Sha
 
 `data_extraction_rules.xml` contains only a TODO comment. `backup_rules.xml` is completely empty. This means:
 
-- **ADB backup** (`adb backup com.jpdgbv.xcan`) will extract the entire app sandbox, including the Room database, DataStore preferences, and any cached OBD data.
+- **ADB backup** (`adb backup com.pavloglez.xcan`) will extract the entire app sandbox, including the Room database, DataStore preferences, and any cached OBD data.
 - **Cloud backup (Android Auto Backup)** will upload all this data to the user's Google account with no exclusions.
 - On **Android 12+**, `data_extraction_rules.xml` controls cloud backup — a blank file means everything is backed up.
 
