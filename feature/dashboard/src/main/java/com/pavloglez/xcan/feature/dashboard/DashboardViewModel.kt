@@ -4,16 +4,20 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pavloglez.xcan.core.bluetooth.BleDataSource
 import com.pavloglez.xcan.core.bluetooth.ConnectionStatus
+import com.pavloglez.xcan.core.data.CarRepository
 import com.pavloglez.xcan.core.data.UserPreferencesRepository
 import com.pavloglez.xcan.core.model.ObdSensor
 import com.pavloglez.xcan.core.model.SensorRepository
 import com.pavloglez.xcan.core.model.TelemetryFrame
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -32,11 +36,13 @@ sealed interface DashboardEffect {
     data class ShowToast(val message: String) : DashboardEffect
 }
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
     private val bleDataSource: BleDataSource,
     private val userPreferencesRepository: UserPreferencesRepository,
-    private val sensorRepository: SensorRepository
+    private val sensorRepository: SensorRepository,
+    private val carRepository: CarRepository
 ) : ViewModel() {
 
     private val _effect = Channel<DashboardEffect>()
@@ -45,9 +51,14 @@ class DashboardViewModel @Inject constructor(
     private val _supportedSensors = MutableStateFlow<List<ObdSensor>>(emptyList())
     private val _isTrackMode = MutableStateFlow(false)
 
+    private val activeCarSelectedSensors = carRepository.getActiveCar()
+        .flatMapLatest { car ->
+            userPreferencesRepository.getSelectedSensors(car?.id)
+        }
+
     init {
         viewModelScope.launch {
-            userPreferencesRepository.selectedSensors.collect { pids ->
+            activeCarSelectedSensors.collect { pids ->
                 bleDataSource.setPollingPids(pids.toList())
             }
         }
@@ -65,7 +76,7 @@ class DashboardViewModel @Inject constructor(
         bleDataSource.telemetry,
         userPreferencesRepository.useMetric,
         _supportedSensors,
-        userPreferencesRepository.selectedSensors,
+        activeCarSelectedSensors,
         sensorRepository.getSensors(),
         _isTrackMode
     ) { args ->
@@ -81,7 +92,8 @@ class DashboardViewModel @Inject constructor(
 
     fun setSelectedSensors(sensors: Set<String>) {
         viewModelScope.launch {
-            userPreferencesRepository.setSelectedSensors(sensors)
+            val carId = carRepository.getActiveCar().firstOrNull()?.id
+            userPreferencesRepository.setSelectedSensors(carId, sensors)
         }
     }
 
@@ -95,3 +107,4 @@ class DashboardViewModel @Inject constructor(
         _isTrackMode.value = !_isTrackMode.value
     }
 }
+

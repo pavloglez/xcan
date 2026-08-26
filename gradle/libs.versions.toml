@@ -1,5 +1,5 @@
 [versions]
-sqlcipher = "4.5.4"
+sqlcipher = "4.6.1"
 security-crypto = "1.1.0-alpha06"
 agp = "9.2.1"
 coreKtx = "1.10.1"
@@ -28,7 +28,7 @@ navigation = "2.8.0"
 kotlinxSerialization = "1.7.1"
 
 [libraries]
-sqlcipher = { module = "net.zetetic:android-database-sqlcipher", version.ref = "sqlcipher" }
+sqlcipher = { module = "net.zetetic:sqlcipher-android", version.ref = "sqlcipher" }
 androidx-security-crypto = { module = "androidx.security:security-crypto", version.ref = "security-crypto" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }

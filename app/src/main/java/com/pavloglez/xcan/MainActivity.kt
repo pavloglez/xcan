@@ -42,6 +42,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
@@ -49,7 +50,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.pavloglez.xcan.core.data.CarRepository
 import com.pavloglez.xcan.core.ui.LocalHazeState
+import com.pavloglez.xcan.core.ui.components.LocalActiveCarName
 import com.pavloglez.xcan.core.ui.glassmorphism
 import com.pavloglez.xcan.core.ui.theme.CharcoalSurface
 import com.pavloglez.xcan.core.ui.theme.DeepCharcoal
@@ -67,9 +70,14 @@ import com.pavloglez.xcan.feature.logging.LogSessionsRoute as LogSessionsScreen
 import dagger.hilt.android.AndroidEntryPoint
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.hazeSource
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    @Inject
+    lateinit var carRepository: CarRepository
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -77,8 +85,13 @@ class MainActivity : ComponentActivity() {
             XCanTheme {
                 val navController = rememberNavController()
                 val hazeState = remember { HazeState() }
+                
+                val activeCar by carRepository.getActiveCar().collectAsStateWithLifecycle(initialValue = null)
 
-                CompositionLocalProvider(LocalHazeState provides hazeState) {
+                CompositionLocalProvider(
+                    LocalHazeState provides hazeState,
+                    LocalActiveCarName provides activeCar?.name
+                ) {
                     val topLevelRoutes = listOf(
                         Triple(DiagnosticsRoute::class, "Diagnostics", Icons.Filled.Warning),
                         Triple(MaintenanceRoute::class, "Maintenance", Icons.Filled.Build),

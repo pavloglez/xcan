@@ -90,6 +90,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.pavloglez.xcan.core.ui.theme.XCanTheme
 import com.pavloglez.xcan.core.ui.theme.XCanEasing
 import androidx.compose.animation.core.LinearEasing
+import androidx.compose.material.icons.automirrored.filled.ListAlt
 import androidx.compose.ui.Alignment
 import com.pavloglez.xcan.core.model.CarProfile
 import com.pavloglez.xcan.core.model.TelemetryFrame
@@ -296,7 +297,7 @@ fun DashboardRoute(
     // Config bottom sheet
     if (showConfigSheet) {
         com.pavloglez.xcan.feature.dashboard.ui.DashboardConfigBottomSheet(
-            allSensors = state.allKnownSensors,
+            allSensors = state.supportedSensors,
             selectedPids = state.selectedSensors,
             sheetState = configSheetState,
             onToggleSensor = { pid, checked ->
@@ -404,22 +405,23 @@ fun DashboardScreen(
         modifier = Modifier.fillMaxSize(),
         containerColor = DeepCharcoal,
         topBar = {
-            val defaultTitle = if (state.activeCar != null) "Telemetry - ${state.activeCar.name}" else "XCan Telemetry"
+            val defaultTitle = "XCan"
             GlassTopAppBar(
                 titleContent = {
                     if (state.isTrackMode) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text("XCan ", color = MaterialTheme.colorScheme.onSurface)
-                            Text("Track", color = neonRed, fontWeight = FontWeight.Bold)
+                            Text("Track Mode", color = neonRed, fontWeight = FontWeight.Bold, fontSize = 16.sp)
                         }
                     } else {
                         Text(defaultTitle, color = MaterialTheme.colorScheme.onSurface)
                     }
                 },
+
                 actions = {
                     IconButton(onClick = onShowLogs) {
                         Icon(
-                            imageVector = Icons.Default.ListAlt,
+                            imageVector = Icons.AutoMirrored.Filled.ListAlt,
                             contentDescription = "View Logs",
                             tint = ElectricBlue
                         )
@@ -474,7 +476,7 @@ fun DashboardScreen(
                         val pulsingButtonColor = if (state.isTrackMode) {
                             androidx.compose.ui.graphics.lerp(
                                 start = neonRed,
-                                stop = Color(0xFFFF8888),
+                                stop = Color(0x0CFF8888),
                                 fraction = (0.5f - pulseAlpha) * 2f
                             )
                         } else {
@@ -681,8 +683,8 @@ fun TelemetryDial(
 
                 if (sweepAngle > 0.5f) {
                     val brush = androidx.compose.ui.graphics.Brush.sweepGradient(
-                        0f to color.copy(alpha = 0.0f),
-                        (sweepAngle / 360f) to color,
+                        0f to color.copy(alpha = 0.1f),
+                        (sweepAngle / 360f) to color.copy(alpha = 0.7f),
                         1.0f to Color.Transparent,
                         center = center
                     )

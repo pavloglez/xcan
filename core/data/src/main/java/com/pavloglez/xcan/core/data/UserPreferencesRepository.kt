@@ -42,17 +42,21 @@ class UserPreferencesRepository @Inject constructor(
         }
     }
 
-    val selectedSensors: Flow<Set<String>> = dataStore.data
-        .catch { exception ->
-            if (exception is IOException) emit(emptyPreferences()) else throw exception
-        }
-        .map { preferences ->
-            preferences[PreferencesKeys.SELECTED_SENSORS] ?: setOf("010C", "010D", "0104", "0105")
-        }
+    fun getSelectedSensors(carId: String?): Flow<Set<String>> {
+        val key = if (carId == null) PreferencesKeys.SELECTED_SENSORS else stringSetPreferencesKey("selected_sensors_$carId")
+        return dataStore.data
+            .catch { exception ->
+                if (exception is IOException) emit(emptyPreferences()) else throw exception
+            }
+            .map { preferences ->
+                preferences[key] ?: setOf("010C", "010D", "0104", "0105")
+            }
+    }
 
-    suspend fun setSelectedSensors(sensors: Set<String>) {
+    suspend fun setSelectedSensors(carId: String?, sensors: Set<String>) {
+        val key = if (carId == null) PreferencesKeys.SELECTED_SENSORS else stringSetPreferencesKey("selected_sensors_$carId")
         dataStore.edit { preferences ->
-            preferences[PreferencesKeys.SELECTED_SENSORS] = sensors
+            preferences[key] = sensors
         }
     }
 }

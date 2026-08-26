@@ -16,7 +16,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import net.sqlcipher.database.SupportFactory
+
 import java.security.SecureRandom
 import javax.inject.Singleton
 
@@ -53,7 +53,7 @@ object DatabaseModule {
     fun provideXCanDatabase(
         @ApplicationContext context: Context
     ): XCanDatabase {
-        val factory = SupportFactory(getDbPassword(context))
+        val factory = net.zetetic.database.sqlcipher.SupportOpenHelperFactory(getDbPassword(context))
         return Room.databaseBuilder(
             context,
             XCanDatabase::class.java,
