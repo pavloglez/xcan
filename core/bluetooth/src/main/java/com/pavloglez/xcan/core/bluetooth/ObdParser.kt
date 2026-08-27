@@ -1,9 +1,9 @@
 package com.pavloglez.xcan.core.bluetooth
 
 import com.pavloglez.xcan.core.model.SensorRepository
-import com.pavloglez.xcan.core.model.TelemetryFrame
 import java.util.UUID
 import javax.inject.Inject
+import com.pavloglez.xcan.core.model.ObdConstants
 
 class ObdParser @Inject constructor(
     private val sensorRepo: SensorRepository
@@ -16,12 +16,28 @@ class ObdParser @Inject constructor(
 
     fun parse(data: String): Pair<String, Float>? {
         val cleanData = data.replace(" ", "").replace("\r", "").replace(">", "")
-        if (cleanData.length < 4 || !cleanData.startsWith("41")) return null
+        if (cleanData.length < ObdConstants.MIN_OBD_RESPONSE_LENGTH || !cleanData.startsWith(ObdConstants.SERVICE_01_RESPONSE_PREFIX)) return null
 
         val pid = cleanData.substring(2, 4)
-        val fullPid = "01$pid"
+        val fullPid = "${ObdConstants.SERVICE_01_MODE}$pid"
         
         try {
+            // High-performance path for standard PIDs
+            val standardPid = com.pavloglez.xcan.core.model.StandardPid.fromHex(pid)
+            if (standardPid != null) {
+                val expectedBytes = standardPid.bytesReturned
+                val requiredLength = 4 + (expectedBytes * 2)
+                if (cleanData.length >= requiredLength && expectedBytes > 0) {
+                    val bytes = ByteArray(expectedBytes)
+                    for (i in 0 until expectedBytes) {
+                        val startIndex = 4 + (i * 2)
+                        bytes[i] = cleanData.substring(startIndex, startIndex + 2).toInt(16).toByte()
+                    }
+                    return Pair(fullPid, standardPid.decode(bytes))
+                }
+            }
+
+            // Fallback for custom or string-formula sensors
             val sensor = sensorRepo.getSensorByPidSync(fullPid)
             
             val expectedBytes = if (sensor.expectedBytes == -1) {
@@ -46,12 +62,12 @@ class ObdParser @Inject constructor(
     }
     
     private fun evaluateFormula(formula: String, bytes: IntArray): Float {
-        if (formula == "RAW") {
+        if (formula == ObdConstants.FORMULA_RAW) {
             // For raw data, just convert the first few bytes to a float representation 
             // so it can fit in our TelemetryFrame.
             var value = 0f
             if (bytes.isNotEmpty()) value = bytes[0].toFloat()
-            if (bytes.size > 1) value += (bytes[1] / 1000f)
+            if (bytes.size > 1) value += (bytes[1] / ObdConstants.RAW_BYTE2_DIVISOR)
             return value
         }
         
@@ -59,12 +75,12 @@ class ObdParser @Inject constructor(
         // In the future, replace with a proper math expression evaluator library (e.g., exp4j)
         return try {
             when (formula) {
-                "(A*256+B)/4" -> if (bytes.size >= 2) ((bytes[0] * 256) + bytes[1]) / 4f else 0f
-                "A" -> if (bytes.size >= 1) bytes[0].toFloat() else 0f
-                "(A*100)/255" -> if (bytes.size >= 1) (bytes[0] * 100f) / 255f else 0f
-                "A-40" -> if (bytes.size >= 1) (bytes[0] - 40).toFloat() else 0f
-                "(A*256+B)/100" -> if (bytes.size >= 2) ((bytes[0] * 256) + bytes[1]) / 100f else 0f
-                "A*256+B" -> if (bytes.size >= 2) ((bytes[0] * 256) + bytes[1]).toFloat() else 0f
+                ObdConstants.FORMULA_RPM -> if (bytes.size >= 2) ((bytes[0] * ObdConstants.HIGH_BYTE_MULTIPLIER) + bytes[1]) / ObdConstants.RPM_DIVISOR else 0f
+                ObdConstants.FORMULA_SINGLE_BYTE -> if (bytes.size >= 1) bytes[0].toFloat() else 0f
+                ObdConstants.FORMULA_PERCENT -> if (bytes.size >= 1) (bytes[0] * ObdConstants.PERCENT_SCALE) / ObdConstants.BYTE_MAX_FLOAT else 0f
+                ObdConstants.FORMULA_TEMP -> if (bytes.size >= 1) (bytes[0] - ObdConstants.TEMP_OFFSET_CELSIUS.toInt()).toFloat() else 0f
+                ObdConstants.FORMULA_MAF -> if (bytes.size >= 2) ((bytes[0] * ObdConstants.HIGH_BYTE_MULTIPLIER) + bytes[1]) / ObdConstants.MAF_DIVISOR else 0f
+                ObdConstants.FORMULA_TWO_BYTE -> if (bytes.size >= 2) ((bytes[0] * ObdConstants.HIGH_BYTE_MULTIPLIER) + bytes[1]).toFloat() else 0f
                 else -> 0f 
             }
         } catch (e: Exception) {

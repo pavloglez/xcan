@@ -14,19 +14,19 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.pavloglez.xcan.core.ui.LocalHazeState
 import com.pavloglez.xcan.core.ui.glassmorphism
 import com.pavloglez.xcan.core.ui.theme.ElectricBlue
+import com.pavloglez.xcan.core.ui.theme.XCanTokens
 
 val LocalActiveCarName = compositionLocalOf<String?> { null }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GlassTopAppBar(
+    modifier: Modifier = Modifier,
     title: String? = null,
     titleContent: @Composable () -> Unit = { title?.let { Text(it, color = Color.White) } },
-    modifier: Modifier = Modifier,
     navigationIcon: @Composable () -> Unit = {},
     actions: @Composable RowScope.() -> Unit = {}
 ) {
@@ -35,7 +35,7 @@ fun GlassTopAppBar(
             .fillMaxWidth()
             .glassmorphism(
                 hazeState = LocalHazeState.current,
-                shape = RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp)
+                shape = RoundedCornerShape(bottomStart = XCanTokens.CornerLarge, bottomEnd = XCanTokens.CornerLarge)
             )
     ) {
         TopAppBar(
@@ -47,7 +47,7 @@ fun GlassTopAppBar(
                         Text(
                             text = activeCar,
                             color = ElectricBlue,
-                            fontSize = 12.sp
+                            fontSize = XCanTokens.SubtitleFontSize
                         )
                     }
                 }

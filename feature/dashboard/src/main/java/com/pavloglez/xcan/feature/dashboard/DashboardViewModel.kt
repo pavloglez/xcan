@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import com.pavloglez.xcan.core.model.ObdConstants
 
 data class DashboardState(
     val telemetry: TelemetryFrame? = null,
@@ -88,7 +89,7 @@ class DashboardViewModel @Inject constructor(
             allKnownSensors = args[4] as List<ObdSensor>,
             isTrackMode = args[5] as Boolean
         )
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), DashboardState())
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(ObdConstants.STOP_TIMEOUT_MS), DashboardState())
 
     fun setSelectedSensors(sensors: Set<String>) {
         viewModelScope.launch {

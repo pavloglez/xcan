@@ -11,11 +11,11 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.util.UUID
 import javax.inject.Inject
+import com.pavloglez.xcan.core.model.ObdConstants
 
 data class MaintenanceState(
     val logs: List<MaintenanceLog> = emptyList(),
@@ -48,7 +48,7 @@ class MaintenanceViewModel @Inject constructor(
         )
     }.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
+        started = SharingStarted.WhileSubscribed(ObdConstants.STOP_TIMEOUT_MS),
         initialValue = MaintenanceState(isLoading = true)
     )
 

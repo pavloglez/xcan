@@ -1,0 +1,155 @@
+<resources>
+    <!-- App -->
+    <string name="app_name">XCan</string>
+
+    <!-- Navigation -->
+    <string name="nav_dashboard">Panel</string>
+    <string name="nav_diagnostics">Diagnósticos</string>
+    <string name="nav_maintenance">Mantenimiento</string>
+    <string name="nav_logs">Registros</string>
+    <string name="nav_config">Ajustes</string>
+
+    <!-- Common Actions -->
+    <string name="action_cancel">Cancelar</string>
+    <string name="action_close">Cerrar</string>
+    <string name="action_save">Guardar</string>
+    <string name="action_add">Agregar</string>
+    <string name="action_pause">Pausar</string>
+    <string name="action_resume">Reanudar</string>
+    <string name="action_stop">Detener</string>
+
+    <!-- Connection -->
+    <string name="btn_connect_obd">Conectar OBD-II</string>
+    <string name="btn_connecting">Conectando…</string>
+    <string name="btn_disconnect">Desconectar</string>
+    <string name="unknown_obd_device">Dispositivo OBD desconocido</string>
+    <string name="permission_bluetooth_required">Se requieren permisos de Bluetooth</string>
+    <string name="scanning_for_devices">Buscando dispositivos…</string>
+    <string name="dialog_title_select_adapter">Seleccionar adaptador OBD-II</string>
+
+    <!-- Connection Logs -->
+    <string name="log_connecting_adapter">Estableciendo conexión con adaptador %1$s…</string>
+    <string name="log_connecting_ecu">Conectando al ECU…</string>
+    <string name="log_connected">Conectado.</string>
+    <string name="log_connection_retry">Conexión fallida: %1$s. Reintentando en %2$ds…</string>
+    <string name="log_disconnecting">Desconectando…</string>
+    <string name="log_disconnected">Desconectado.</string>
+    <string name="log_disconnect_error">Error al desconectar: %1$s</string>
+    <string name="dialog_title_connection_logs">Registros de conexión</string>
+    <string name="no_connection_logs">No hay registros disponibles.</string>
+
+    <!-- Vehicle -->
+    <string name="dialog_title_select_vehicle">Seleccionar vehículo</string>
+    <string name="dialog_title_add_vehicle">Agregar vehículo</string>
+    <string name="btn_add_new_vehicle">Agregar nuevo</string>
+    <string name="label_car_make_hint">Marca (ej. Toyota)</string>
+    <string name="label_car_model_hint">Modelo (ej. Camry)</string>
+    <string name="label_car_year_hint">Año (ej. 2018)</string>
+    <string name="car_default_name_format">%1$d %2$s %3$s</string>
+    <string name="error_invalid_car_details">Datos del vehículo inválidos</string>
+    <string name="cd_active_vehicle">Activo</string>
+    <string name="cd_select_vehicle">Seleccionar vehículo</string>
+    <string name="toast_connect_vehicle_first">Primero conecte un vehículo</string>
+
+    <!-- Dashboard -->
+    <string name="track_mode_title">Modo Pista</string>
+    <string name="btn_track_mode">PISTA</string>
+    <string name="cd_view_logs">Ver registros</string>
+    <string name="cd_configure_dashboard">Configurar</string>
+    <string name="sheet_title_select_vehicle">Seleccionar vehículo</string>
+    <string name="sheet_subtitle_select_vehicle_logging">Elija para qué auto registrar esta sesión</string>
+    <string name="car_year_make_format">%1$d · %2$s</string>
+    <string name="sheet_title_dashboard_widgets">Widgets del panel</string>
+    <string name="sheet_subtitle_dashboard_widgets">Los elementos marcados aparecen en el panel y se registran automáticamente</string>
+    <string name="sensor_pid_unit_format">%1$s · %2$s</string>
+
+    <!-- Logging -->
+    <string name="btn_start_log">Registro</string>
+    <string name="status_logging_paused">Pausado</string>
+    <string name="cd_resume_logging">Reanudar</string>
+    <string name="cd_pause_logging">Pausar</string>
+    <string name="cd_stop_logging">Detener</string>
+    <string name="title_log_session_detail">Sesión de registro</string>
+    <string name="title_car_session_format">Sesión de %1$s</string>
+    <string name="label_session_duration_format">Duración: %1$s</string>
+    <string name="msg_no_data_recorded_session">No se registraron datos en esta sesión</string>
+    <string name="label_points_count_format">%1$d pts</string>
+    <string name="stat_min">Mín</string>
+    <string name="stat_avg">Prom</string>
+    <string name="stat_max">Máx</string>
+    <string name="title_logged_sessions_count_format">Sesiones registradas (%1$d)</string>
+    <string name="cd_delete_all_sessions">Eliminar todo</string>
+    <string name="dialog_title_delete_all_sessions">¿Eliminar todas las sesiones?</string>
+    <string name="dialog_message_delete_all_sessions">Esto eliminará permanentemente todas las sesiones registradas y sus datos.</string>
+    <string name="btn_delete_all">Eliminar todo</string>
+    <string name="empty_sessions_title">Sin sesiones aún</string>
+    <string name="empty_sessions_subtitle">Inicie un registro desde el panel</string>
+    <string name="cd_delete_session">Eliminar</string>
+    <string name="status_session_active">Activo</string>
+    <string name="status_recording">Grabando</string>
+    <string name="duration_mins_secs_format">%1$dm %2$ds</string>
+    <string name="duration_secs_format">%1$ds</string>
+
+    <!-- Diagnostics -->
+    <string name="title_vehicle_diagnostics">Diagnósticos del vehículo</string>
+    <string name="prompt_connect_adapter_to_scan">Conecte el adaptador OBD2 para iniciar un escaneo.</string>
+    <string name="btn_scanning">Escaneando…</string>
+    <string name="btn_scan_faults">Buscar fallas</string>
+    <string name="btn_clearing">Limpiando…</string>
+    <string name="btn_clear_fault_codes">Limpiar códigos de falla</string>
+    <string name="dialog_title_clear_fault_codes">¿Limpiar códigos de falla?</string>
+    <string name="dialog_message_clear_fault_codes">Esto borrará todos los códigos de falla almacenados y pendientes, y apagará la luz Check Engine. ¿Desea continuar?</string>
+    <string name="btn_clear_codes">Limpiar códigos</string>
+    <string name="msg_no_fault_codes_detected">No se detectaron códigos de falla. ¡Su vehículo está en buen estado!</string>
+    <string name="error_diagnostics_scan_failed">Ocurrió un error. Intente de nuevo.</string>
+    <string name="dtc_unknown_description">Código desconocido</string>
+    <string name="dtc_unknown_fallback">Código de diagnóstico desconocido</string>
+
+    <!-- DTC Types -->
+    <string name="dtc_type_stored">Almacenado</string>
+    <string name="dtc_type_pending">Pendiente</string>
+    <string name="dtc_type_permanent">Permanente</string>
+
+    <!-- Maintenance -->
+    <string name="title_maintenance_history">Historial de mantenimiento</string>
+    <string name="title_maintenance_car_format">Mantenimiento - %1$s</string>
+    <string name="msg_select_vehicle_on_dashboard">Seleccione un vehículo en el Panel.</string>
+    <string name="msg_no_maintenance_logs">Sin registros. Toque + para agregar.</string>
+    <string name="cd_add_maintenance_log">Agregar registro</string>
+    <string name="dialog_title_add_maintenance_log">Agregar registro de mantenimiento</string>
+    <string name="label_service_type">Tipo de servicio</string>
+    <string name="label_notes">Notas</string>
+    <string name="label_related_fault_code_hint">Código de falla relacionado (ej. P0133)</string>
+    <string name="label_mileage_with_unit_format">Kilometraje (%1$s)</string>
+    <string name="label_fault_code_format">Código de falla: %1$s</string>
+    <string name="label_mileage_format">Kilometraje: %1$d %2$s</string>
+
+    <!-- Config -->
+    <string name="title_ecu_configuration">Configuración ECU</string>
+    <string name="pref_use_metric_title">Usar unidades métricas</string>
+    <string name="pref_use_metric_summary">Mostrar velocidad en KM/H en vez de MPH</string>
+
+    <!-- Notifications -->
+    <string name="notification_channel_logging_name">Registro de telemetría</string>
+    <string name="notification_channel_logging_desc">Sesión activa de registro de telemetría OBD2</string>
+    <string name="notification_logging_title">XCan · %1$s</string>
+    <string name="notification_logging_recording">Grabando · %1$s</string>
+    <string name="notification_logging_paused">Pausado · %1$s</string>
+
+    <!-- Sensor Names -->
+    <string name="sensor_engine_rpm">RPM del motor</string>
+    <string name="sensor_vehicle_speed">Velocidad del vehículo</string>
+    <string name="sensor_engine_load">Carga del motor</string>
+    <string name="sensor_coolant_temp">Temp. refrigerante</string>
+    <string name="sensor_intake_air_temp">Temp. aire de admisión</string>
+    <string name="sensor_maf_air_flow">Flujo de aire MAF</string>
+    <string name="sensor_throttle_position">Posición del acelerador</string>
+    <string name="sensor_run_time">Tiempo de ejecución</string>
+    <string name="sensor_fuel_level">Nivel de combustible</string>
+    <string name="sensor_ambient_air_temp">Temp. ambiente</string>
+    <string name="sensor_barometric_pressure">Presión barométrica</string>
+    <string name="sensor_engine_oil_temp">Temp. aceite de motor</string>
+    <string name="sensor_intake_pressure">Presión del múltiple de admisión</string>
+    <string name="sensor_timing_advance">Avance de encendido</string>
+    <string name="sensor_unknown_pid_format">PID desconocido %1$s</string>
+</resources>

@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -34,14 +33,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -57,6 +54,8 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.concurrent.TimeUnit
+import androidx.compose.ui.res.stringResource
+import com.pavloglez.xcan.core.ui.R
 
 
 @Composable
@@ -71,8 +70,8 @@ fun LogSessionsRoute(
         AlertDialog(
             onDismissRequest = { showDeleteAllDialog = false },
             containerColor = MaterialTheme.colorScheme.surface,
-            title = { Text("Delete All Sessions?", color = MaterialTheme.colorScheme.onSurface) },
-            text = { Text("This will permanently remove all logged sessions and their data.", color = MaterialTheme.colorScheme.onBackground) },
+            title = { Text(stringResource(R.string.dialog_title_delete_all_sessions), color = MaterialTheme.colorScheme.onSurface) },
+            text = { Text(stringResource(R.string.dialog_message_delete_all_sessions), color = MaterialTheme.colorScheme.onBackground) },
             confirmButton = {
                 Button(
                     onClick = {
@@ -80,10 +79,10 @@ fun LogSessionsRoute(
                         showDeleteAllDialog = false
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
-                ) { Text("Delete All") }
+                ) { Text(stringResource(R.string.btn_delete_all)) }
             },
             dismissButton = {
-                TextButton(onClick = { showDeleteAllDialog = false }) { Text("Cancel") }
+                TextButton(onClick = { showDeleteAllDialog = false }) { Text(stringResource(R.string.action_cancel)) }
             }
         )
     }
@@ -112,13 +111,13 @@ fun LogSessionsScreen(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             GlassTopAppBar(
-                title = "Logged Sessions (${sessions.size})",
+                title = stringResource(R.string.title_logged_sessions_count_format, sessions.size),
                 actions = {
                     if (sessions.isNotEmpty()) {
                         IconButton(onClick = onDeleteAll) {
                             Icon(
                                 imageVector = Icons.Filled.DeleteForever,
-                                contentDescription = "Delete All",
+                                contentDescription = stringResource(R.string.btn_delete_all),
                                 tint = MaterialTheme.colorScheme.error
                             )
                         }
@@ -141,8 +140,8 @@ fun LogSessionsScreen(
                         modifier = Modifier.size(48.dp)
                     )
                     Spacer(Modifier.height(12.dp))
-                    Text("No sessions yet", color = MaterialTheme.colorScheme.onBackground, fontSize = 16.sp)
-                    Text("Start logging from the dashboard", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f), fontSize = 13.sp)
+                    Text(stringResource(R.string.empty_sessions_title), color = MaterialTheme.colorScheme.onBackground, fontSize = 16.sp)
+                    Text(stringResource(R.string.empty_sessions_subtitle), color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f), fontSize = 13.sp)
                 }
             }
         } else {
@@ -175,7 +174,7 @@ fun LogSessionsScreen(
                                     .padding(end = 24.dp),
                                 contentAlignment = Alignment.CenterEnd
                             ) {
-                                Icon(Icons.Filled.Delete, contentDescription = "Delete", tint = MaterialTheme.colorScheme.onSurface)
+                                Icon(Icons.Filled.Delete, contentDescription = stringResource(R.string.cd_delete_session), tint = MaterialTheme.colorScheme.onSurface)
                             }
                         }
                     ) {
@@ -202,7 +201,7 @@ private fun SessionCard(
         val mins = TimeUnit.MILLISECONDS.toMinutes(ms)
         val secs = TimeUnit.MILLISECONDS.toSeconds(ms) % 60
         if (mins > 0) "${mins}m ${secs}s" else "${secs}s"
-    } ?: "Active"
+    } ?: stringResource(R.string.status_session_active)
 
     Box(
         modifier = modifier
@@ -252,7 +251,7 @@ private fun SessionCard(
                     fontSize = 14.sp
                 )
                 if (session.isActive) {
-                    Text("Recording", color = MaterialTheme.colorScheme.error, fontSize = 11.sp)
+                    Text(stringResource(R.string.status_recording), color = MaterialTheme.colorScheme.error, fontSize = 11.sp)
                 }
             }
         }

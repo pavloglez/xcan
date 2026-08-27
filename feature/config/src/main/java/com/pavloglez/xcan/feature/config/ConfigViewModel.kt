@@ -12,16 +12,19 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.launch
 import com.pavloglez.xcan.core.data.UserPreferencesRepository
 import javax.inject.Inject
+import com.pavloglez.xcan.core.model.ObdConstants
 
 data class ConfigState(
     val useMetric: Boolean = false,
-    val overrideProtocol: String = "AUTO"
+    val overrideProtocol: String = DEFAULT_OBD_PROTOCOL
 )
 
 sealed interface ConfigIntent {
     data class ToggleMetric(val metric: Boolean) : ConfigIntent
     data class SetProtocol(val protocol: String) : ConfigIntent
 }
+
+private const val DEFAULT_OBD_PROTOCOL = "AUTO"
 
 @HiltViewModel
 class ConfigViewModel @Inject constructor(
@@ -32,7 +35,7 @@ class ConfigViewModel @Inject constructor(
         ConfigState(useMetric = useMetric)
     }.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
+        started = SharingStarted.WhileSubscribed(ObdConstants.STOP_TIMEOUT_MS),
         initialValue = ConfigState()
     )
 

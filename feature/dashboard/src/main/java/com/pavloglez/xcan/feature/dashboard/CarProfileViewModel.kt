@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.util.UUID
 import javax.inject.Inject
+import com.pavloglez.xcan.core.model.ObdConstants
 
 data class CarProfileState(
     val cars: List<CarProfile> = emptyList(),
@@ -30,14 +31,13 @@ class CarProfileViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _effect = Channel<CarProfileEffect>()
-    val effect: Flow<CarProfileEffect> = _effect.receiveAsFlow()
 
     val state = combine(
         carRepository.getAllCars(),
         carRepository.getActiveCar()
     ) { cars, activeCar ->
         CarProfileState(cars, activeCar)
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), CarProfileState())
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(ObdConstants.STOP_TIMEOUT_MS), CarProfileState())
 
     fun addCar(make: String, model: String, year: Int) {
         val currentYear = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR)

@@ -15,6 +15,9 @@ interface TelemetryDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertTelemetry(frame: TelemetryFrameEntity): Long
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertTelemetries(frames: List<TelemetryFrameEntity>)
+
     @Query("DELETE FROM telemetry_frames WHERE timestampMs < :olderThanMs")
     fun deleteOldTelemetry(olderThanMs: Long): Int
 }

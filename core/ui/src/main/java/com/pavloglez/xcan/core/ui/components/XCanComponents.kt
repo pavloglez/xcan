@@ -11,7 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
+import com.pavloglez.xcan.core.ui.theme.XCanTokens
 
 @Composable
 fun XCanCard(
@@ -20,7 +20,7 @@ fun XCanCard(
 ) {
     Surface(
         modifier = modifier,
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(XCanTokens.CornerMedium),
         color = MaterialTheme.colorScheme.surface,
         content = content
     )
@@ -37,14 +37,14 @@ fun XCanButton(
         onClick = onClick,
         modifier = modifier,
         enabled = enabled,
-        shape = RoundedCornerShape(8.dp),
+        shape = RoundedCornerShape(XCanTokens.CornerSmall),
         colors = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.primary,
             contentColor = MaterialTheme.colorScheme.onPrimary,
-            disabledContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
-            disabledContentColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.5f)
+            disabledContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = XCanTokens.ButtonDisabledAlpha),
+            disabledContentColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = XCanTokens.ButtonDisabledAlpha)
         ),
-        contentPadding = PaddingValues(horizontal = 24.dp, vertical = 12.dp)
+        contentPadding = PaddingValues(horizontal = XCanTokens.ButtonHorizontalPadding, vertical = XCanTokens.ButtonVerticalPadding)
     ) {
         Text(text = text, style = MaterialTheme.typography.labelLarge)
     }
@@ -53,11 +53,11 @@ fun XCanButton(
 @Composable
 fun XCanDivider(
     modifier: Modifier = Modifier,
-    color: Color = Color.White.copy(alpha = 0.1f)
+    color: Color = Color.White.copy(alpha = XCanTokens.DividerAlpha)
 ) {
     HorizontalDivider(
         modifier = modifier,
         color = color,
-        thickness = 1.dp
+        thickness = XCanTokens.DividerThickness
     )
 }

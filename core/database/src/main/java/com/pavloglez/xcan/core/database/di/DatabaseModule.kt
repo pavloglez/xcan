@@ -20,6 +20,11 @@ import dagger.hilt.components.SingletonComponent
 import java.security.SecureRandom
 import javax.inject.Singleton
 
+private const val PREFS_DB_SECURITY = "xcan_db_secure_prefs"
+private const val PREF_KEY_DB_PASSPHRASE = "db_key"
+private const val DB_PASSPHRASE_BYTE_COUNT = 32
+private const val DATABASE_NAME = "xcan-database"
+
 @Module
 @InstallIn(SingletonComponent::class)
 object DatabaseModule {
@@ -31,18 +36,18 @@ object DatabaseModule {
             
         val sharedPrefs = EncryptedSharedPreferences.create(
             context,
-            "xcan_db_secure_prefs",
+            PREFS_DB_SECURITY,
             masterKey,
             EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
             EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
         )
 
-        var keyString = sharedPrefs.getString("db_key", null)
+        var keyString = sharedPrefs.getString(PREF_KEY_DB_PASSPHRASE, null)
         if (keyString == null) {
-            val randomBytes = ByteArray(32)
+            val randomBytes = ByteArray(DB_PASSPHRASE_BYTE_COUNT)
             SecureRandom().nextBytes(randomBytes)
             keyString = Base64.encodeToString(randomBytes, Base64.NO_WRAP)
-            sharedPrefs.edit().putString("db_key", keyString).apply()
+            sharedPrefs.edit().putString(PREF_KEY_DB_PASSPHRASE, keyString).apply()
         }
 
         return Base64.decode(keyString, Base64.NO_WRAP)
@@ -57,7 +62,7 @@ object DatabaseModule {
         return Room.databaseBuilder(
             context,
             XCanDatabase::class.java,
-            "xcan-database"
+            DATABASE_NAME
         )
         .openHelperFactory(factory)
         .fallbackToDestructiveMigration()

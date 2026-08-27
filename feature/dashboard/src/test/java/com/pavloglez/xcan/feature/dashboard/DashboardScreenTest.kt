@@ -5,7 +5,6 @@ import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performScrollTo
 import com.pavloglez.xcan.core.bluetooth.ConnectionStatus
 import com.pavloglez.xcan.core.model.ObdSensor
 import com.pavloglez.xcan.core.model.TelemetryFrame

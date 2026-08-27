@@ -1,0 +1,170 @@
+<resources>
+    <!-- App -->
+    <string name="app_name">XCan</string>
+
+    <!-- Navigation -->
+    <string name="nav_dashboard">Dashboard</string>
+    <string name="nav_diagnostics">Diagnostics</string>
+    <string name="nav_maintenance">Maintenance</string>
+    <string name="nav_logs">Logs</string>
+    <string name="nav_config">Config</string>
+
+    <!-- Common Actions -->
+    <string name="action_cancel">Cancel</string>
+    <string name="action_close">Close</string>
+    <string name="action_save">Save</string>
+    <string name="action_add">Add</string>
+    <string name="action_pause">Pause</string>
+    <string name="action_resume">Resume</string>
+    <string name="action_stop">Stop</string>
+
+    <!-- Units -->
+    <string name="unit_percent">%</string>
+    <string name="unit_celsius">°C</string>
+    <string name="unit_fahrenheit">°F</string>
+    <string name="unit_kpa">kPa</string>
+    <string name="unit_rpm">rpm</string>
+    <string name="unit_kmh">km/h</string>
+    <string name="unit_mph">mph</string>
+    <string name="unit_km">km</string>
+    <string name="unit_mi">mi</string>
+    <string name="unit_degrees">°</string>
+    <string name="unit_grams_sec">grams/sec</string>
+    <string name="unit_seconds">sec</string>
+    <string name="unit_raw">Raw</string>
+
+    <!-- Connection -->
+    <string name="btn_connect_obd">Connect OBD-II</string>
+    <string name="btn_connecting">Connecting…</string>
+    <string name="btn_disconnect">Disconnect</string>
+    <string name="unknown_obd_device">Unknown OBD Device</string>
+    <string name="permission_bluetooth_required">Bluetooth permissions are required</string>
+    <string name="scanning_for_devices">Scanning for devices…</string>
+    <string name="dialog_title_select_adapter">Select OBD-II Adapter</string>
+
+    <!-- Connection Logs -->
+    <string name="log_connecting_adapter">Establishing connection with adapter %1$s…</string>
+    <string name="log_connecting_ecu">Connecting to ECU…</string>
+    <string name="log_connected">Connected.</string>
+    <string name="log_connection_retry">Connection failed: %1$s. Retrying in %2$ds…</string>
+    <string name="log_disconnecting">Disconnecting…</string>
+    <string name="log_disconnected">Disconnected.</string>
+    <string name="log_disconnect_error">Disconnect error: %1$s</string>
+    <string name="dialog_title_connection_logs">Connection Logs</string>
+    <string name="no_connection_logs">No logs available.</string>
+
+    <!-- Vehicle -->
+    <string name="dialog_title_select_vehicle">Select Vehicle</string>
+    <string name="dialog_title_add_vehicle">Add Vehicle</string>
+    <string name="btn_add_new_vehicle">Add New</string>
+    <string name="label_car_make_hint">Make (e.g. Toyota)</string>
+    <string name="label_car_model_hint">Model (e.g. Camry)</string>
+    <string name="label_car_year_hint">Year (e.g. 2018)</string>
+    <string name="car_default_name_format">%1$d %2$s %3$s</string>
+    <string name="error_invalid_car_details">Invalid car details</string>
+    <string name="cd_active_vehicle">Active</string>
+    <string name="cd_select_vehicle">Select Vehicle</string>
+    <string name="toast_connect_vehicle_first">Please connect to a vehicle first</string>
+
+    <!-- Dashboard -->
+    <string name="track_mode_title">Track Mode</string>
+    <string name="btn_track_mode">TRACK</string>
+    <string name="cd_view_logs">View Logs</string>
+    <string name="cd_configure_dashboard">Configure</string>
+    <string name="sheet_title_select_vehicle">Select Vehicle</string>
+    <string name="sheet_subtitle_select_vehicle_logging">Choose which car to log this session for</string>
+    <string name="car_year_make_format">%1$d · %2$s</string>
+    <string name="sheet_title_dashboard_widgets">Dashboard Widgets</string>
+    <string name="sheet_subtitle_dashboard_widgets">Checked items appear on the dashboard and are logged automatically</string>
+    <string name="sensor_pid_unit_format">%1$s · %2$s</string>
+
+    <!-- Logging -->
+    <string name="btn_start_log">Log</string>
+    <string name="status_logging_paused">Paused</string>
+    <string name="cd_resume_logging">Resume</string>
+    <string name="cd_pause_logging">Pause</string>
+    <string name="cd_stop_logging">Stop</string>
+    <string name="title_log_session_detail">Log Session</string>
+    <string name="title_car_session_format">%1$s Session</string>
+    <string name="label_session_duration_format">Duration: %1$s</string>
+    <string name="msg_no_data_recorded_session">No data recorded in this session</string>
+    <string name="label_points_count_format">%1$d pts</string>
+    <string name="stat_min">Min</string>
+    <string name="stat_avg">Avg</string>
+    <string name="stat_max">Max</string>
+    <string name="title_logged_sessions_count_format">Logged Sessions (%1$d)</string>
+    <string name="cd_delete_all_sessions">Delete All</string>
+    <string name="dialog_title_delete_all_sessions">Delete All Sessions?</string>
+    <string name="dialog_message_delete_all_sessions">This will permanently remove all logged sessions and their data.</string>
+    <string name="btn_delete_all">Delete All</string>
+    <string name="empty_sessions_title">No sessions yet</string>
+    <string name="empty_sessions_subtitle">Start logging from the dashboard</string>
+    <string name="cd_delete_session">Delete</string>
+    <string name="status_session_active">Active</string>
+    <string name="status_recording">Recording</string>
+    <string name="duration_mins_secs_format">%1$dm %2$ds</string>
+    <string name="duration_secs_format">%1$ds</string>
+
+    <!-- Diagnostics -->
+    <string name="title_vehicle_diagnostics">Vehicle Diagnostics</string>
+    <string name="prompt_connect_adapter_to_scan">Please connect to the OBD2 adapter to run a scan.</string>
+    <string name="btn_scanning">Scanning…</string>
+    <string name="btn_scan_faults">Scan for Faults</string>
+    <string name="btn_clearing">Clearing…</string>
+    <string name="btn_clear_fault_codes">Clear Fault Codes</string>
+    <string name="dialog_title_clear_fault_codes">Clear Fault Codes?</string>
+    <string name="dialog_message_clear_fault_codes">This will erase all stored and pending fault codes and turn off the Check Engine Light. Are you sure you want to proceed?</string>
+    <string name="btn_clear_codes">Clear Codes</string>
+    <string name="msg_no_fault_codes_detected">No fault codes detected. Your vehicle is healthy!</string>
+    <string name="error_diagnostics_scan_failed">An error occurred. Please try again.</string>
+    <string name="dtc_unknown_description">Unknown Code</string>
+    <string name="dtc_unknown_fallback">Unknown Diagnostic Trouble Code</string>
+
+    <!-- DTC Types -->
+    <string name="dtc_type_stored">Stored</string>
+    <string name="dtc_type_pending">Pending</string>
+    <string name="dtc_type_permanent">Permanent</string>
+
+    <!-- Maintenance -->
+    <string name="title_maintenance_history">Maintenance History</string>
+    <string name="title_maintenance_car_format">Maintenance - %1$s</string>
+    <string name="msg_select_vehicle_on_dashboard">Please select a vehicle on the Dashboard.</string>
+    <string name="msg_no_maintenance_logs">No logs found. Tap + to add.</string>
+    <string name="cd_add_maintenance_log">Add Log</string>
+    <string name="dialog_title_add_maintenance_log">Add Maintenance Log</string>
+    <string name="label_service_type">Service Type</string>
+    <string name="label_notes">Notes</string>
+    <string name="label_related_fault_code_hint">Related Fault Code (e.g. P0133)</string>
+    <string name="label_mileage_with_unit_format">Mileage (%1$s)</string>
+    <string name="label_fault_code_format">Fault Code: %1$s</string>
+    <string name="label_mileage_format">Mileage: %1$d %2$s</string>
+
+    <!-- Config -->
+    <string name="title_ecu_configuration">ECU Configuration</string>
+    <string name="pref_use_metric_title">Use Metric Units</string>
+    <string name="pref_use_metric_summary">Show speed in KM/H instead of MPH</string>
+
+    <!-- Notifications -->
+    <string name="notification_channel_logging_name">Telemetry Logging</string>
+    <string name="notification_channel_logging_desc">Active OBD2 telemetry logging session</string>
+    <string name="notification_logging_title">XCan · %1$s</string>
+    <string name="notification_logging_recording">Recording · %1$s</string>
+    <string name="notification_logging_paused">Paused · %1$s</string>
+
+    <!-- Sensor Names -->
+    <string name="sensor_engine_rpm">Engine RPM</string>
+    <string name="sensor_vehicle_speed">Vehicle Speed</string>
+    <string name="sensor_engine_load">Engine Load</string>
+    <string name="sensor_coolant_temp">Coolant Temp</string>
+    <string name="sensor_intake_air_temp">Intake Air Temp</string>
+    <string name="sensor_maf_air_flow">MAF Air Flow Rate</string>
+    <string name="sensor_throttle_position">Throttle Position</string>
+    <string name="sensor_run_time">Run Time</string>
+    <string name="sensor_fuel_level">Fuel Level</string>
+    <string name="sensor_ambient_air_temp">Ambient Air Temp</string>
+    <string name="sensor_barometric_pressure">Barometric Pressure</string>
+    <string name="sensor_engine_oil_temp">Engine Oil Temp</string>
+    <string name="sensor_intake_pressure">Intake Manifold Pressure</string>
+    <string name="sensor_timing_advance">Timing Advance</string>
+    <string name="sensor_unknown_pid_format">Unknown PID %1$s</string>
+</resources>

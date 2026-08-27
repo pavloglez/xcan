@@ -9,8 +9,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
-import com.pavloglez.xcan.core.ui.theme.XCanDuration
 import com.pavloglez.xcan.core.ui.theme.XCanEasing
+import com.pavloglez.xcan.core.ui.theme.XCanTokens
 
 fun Modifier.staggerEnter(
     index: Int,

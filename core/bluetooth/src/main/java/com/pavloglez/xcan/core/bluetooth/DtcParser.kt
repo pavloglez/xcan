@@ -17,7 +17,7 @@ object DtcParser {
     fun parse(hexResponse: String, type: DtcType): List<DiagnosticTroubleCode> {
         try {
             val uppercaseResp = hexResponse.uppercase()
-        if (uppercaseResp.isEmpty() || uppercaseResp.contains("NODATA") || uppercaseResp.contains("ERROR")) {
+        if (uppercaseResp.isEmpty() || uppercaseResp.contains(BluetoothConstants.ELM_NO_DATA) || uppercaseResp.contains(BluetoothConstants.ELM_ERROR)) {
             return emptyList()
         }
 

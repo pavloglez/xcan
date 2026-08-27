@@ -33,7 +33,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -46,6 +45,8 @@ import com.pavloglez.xcan.core.ui.LocalHazeState
 import com.pavloglez.xcan.core.ui.components.bounceClick
 import com.pavloglez.xcan.core.ui.glassmorphism
 import kotlinx.coroutines.delay
+import androidx.compose.ui.res.stringResource
+import com.pavloglez.xcan.core.ui.R
 
 private val GlassWhite = Color(0xFFFFFFFF).copy(alpha = 0.12f)
 private val GlassBorder = Color(0xFFFFFFFF).copy(alpha = 0.18f)
@@ -119,7 +120,7 @@ fun LogFloatingControl(
                 )
                 Spacer(Modifier.width(8.dp))
                 Text(
-                    text = "Log",
+                    text = stringResource(R.string.btn_start_log),
                     color = accentColor,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 14.sp
@@ -143,7 +144,7 @@ fun LogFloatingControl(
                     label = "timerLabel"
                 ) { paused ->
                     Text(
-                        text = if (paused) "Paused" else "%02d:%02d".format(mins, secs),
+                        text = if (paused) stringResource(R.string.status_logging_paused) else "%02d:%02d".format(mins, secs),
                         color = MaterialTheme.colorScheme.onSurface,
                         fontWeight = FontWeight.Medium,
                         fontFamily = FontFamily.Monospace,
@@ -160,7 +161,7 @@ fun LogFloatingControl(
                 ) {
                     Icon(
                         imageVector = if (isPaused) Icons.Filled.PlayArrow else Icons.Filled.Pause,
-                        contentDescription = if (isPaused) "Resume" else "Pause",
+                        contentDescription = if (isPaused) stringResource(R.string.cd_resume_logging) else stringResource(R.string.cd_pause_logging),
                         tint = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.size(18.dp)
                     )
@@ -174,7 +175,7 @@ fun LogFloatingControl(
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Stop,
-                        contentDescription = "Stop",
+                        contentDescription = stringResource(R.string.cd_stop_logging),
                         tint = MaterialTheme.colorScheme.error,
                         modifier = Modifier.size(18.dp)
                     )

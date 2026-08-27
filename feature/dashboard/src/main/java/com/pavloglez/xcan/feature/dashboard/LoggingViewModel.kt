@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import com.pavloglez.xcan.core.model.ObdConstants
 
 data class LoggingViewState(
     val loggingState: LoggingState = LoggingState.Idle
@@ -26,7 +27,7 @@ class LoggingViewModel @Inject constructor(
 
     val state = LoggingService.loggingState.map {
         LoggingViewState(it)
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), LoggingViewState())
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(ObdConstants.STOP_TIMEOUT_MS), LoggingViewState())
 
     fun startLogging(carId: String, carLabel: String) {
         viewModelScope.launch {

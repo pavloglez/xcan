@@ -12,7 +12,6 @@ import androidx.core.app.NotificationCompat
 import com.pavloglez.xcan.core.bluetooth.BleDataSource
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
@@ -47,6 +46,10 @@ class LoggingService : Service() {
         const val EXTRA_START_MS = "start_ms"
 
         private const val NOTIFICATION_ID = 1001
+        private const val BATCH_FLUSH_INTERVAL_MS = 500L
+        private const val MILLIS_PER_SECOND = 1000L
+        private const val SECONDS_PER_MINUTE = 60
+        private const val DURATION_FORMAT = "%02d:%02d"
         private const val CHANNEL_ID = "xcan_logging"
 
         fun startIntent(context: Context, sessionId: String, carLabel: String, startMs: Long) =
@@ -125,7 +128,7 @@ class LoggingService : Service() {
             }
             // Flush batch every 500ms
             while (true) {
-                delay(500)
+                delay(BATCH_FLUSH_INTERVAL_MS)
                 val currentState = _loggingState.value
                 if (currentState is LoggingState.Recording && pendingEntries.isNotEmpty()) {
                     loggingRepository.recordBatch(sessionId, pendingEntries.toMap())
@@ -188,7 +191,7 @@ class LoggingService : Service() {
         val durationSec = (System.currentTimeMillis() - startMs) / 1000
         val mins = durationSec / 60
         val secs = durationSec % 60
-        val durationStr = "%02d:%02d".format(mins, secs)
+        val durationStr = DURATION_FORMAT.format(mins, secs)
         val statusText = if (isPaused) "Paused · $durationStr" else "Recording · $durationStr"
 
         return NotificationCompat.Builder(this, CHANNEL_ID)

@@ -31,6 +31,8 @@ import com.pavloglez.xcan.core.ui.theme.DeepCharcoal
 import com.pavloglez.xcan.core.ui.theme.ElectricBlue
 import androidx.compose.ui.tooling.preview.Preview
 import com.pavloglez.xcan.core.ui.theme.XCanTheme
+import androidx.compose.ui.res.stringResource
+import com.pavloglez.xcan.core.ui.R
 
 @Composable
 fun DiagnosticsRoute(
@@ -55,8 +57,8 @@ fun DiagnosticsScreen(
     if (showClearDialog) {
         AlertDialog(
             onDismissRequest = { showClearDialog = false },
-            title = { Text("Clear Fault Codes?") },
-            text = { Text("This will erase all stored and pending fault codes and turn off the Check Engine Light. Are you sure you want to proceed?") },
+            title = { Text(stringResource(R.string.dialog_title_clear_fault_codes)) },
+            text = { Text(stringResource(R.string.dialog_message_clear_fault_codes)) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -64,12 +66,12 @@ fun DiagnosticsScreen(
                         onClearClicked()
                     }
                 ) {
-                    Text("Clear Codes", color = MaterialTheme.colorScheme.error)
+                    Text(stringResource(R.string.btn_clear_codes), color = MaterialTheme.colorScheme.error)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showClearDialog = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.action_cancel))
                 }
             }
         )
@@ -79,7 +81,7 @@ fun DiagnosticsScreen(
         modifier = Modifier.fillMaxSize(),
         containerColor = DeepCharcoal,
         topBar = {
-            GlassTopAppBar(title = "Vehicle Diagnostics")
+            GlassTopAppBar(title = stringResource(R.string.title_vehicle_diagnostics))
         }
     ) { innerPadding ->
         Box(
@@ -98,7 +100,7 @@ fun DiagnosticsScreen(
 
             if (!state.isConnected) {
                 Text(
-                    text = "Please connect to the OBD2 adapter to run a scan.",
+                    text = stringResource(R.string.prompt_connect_adapter_to_scan),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(16.dp)
@@ -118,9 +120,9 @@ fun DiagnosticsScreen(
                             modifier = Modifier.size(24.dp)
                         )
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Scanning...")
+                        Text(stringResource(R.string.btn_scanning))
                     } else {
-                        Text("Scan for Faults")
+                        Text(stringResource(R.string.btn_scan_faults))
                     }
                 }
                 
@@ -139,9 +141,9 @@ fun DiagnosticsScreen(
                                 modifier = Modifier.size(24.dp)
                             )
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Clearing...")
+                            Text(stringResource(R.string.btn_clearing))
                         } else {
-                            Text("Clear Fault Codes")
+                            Text(stringResource(R.string.btn_clear_fault_codes))
                         }
                     }
                 }
@@ -157,7 +159,7 @@ fun DiagnosticsScreen(
                 ScanStatus.SUCCESS -> {
                     if (state.faultCodes.isEmpty()) {
                         Text(
-                            text = "No fault codes detected. Your vehicle is healthy!",
+                            text = stringResource(R.string.msg_no_fault_codes_detected),
                             color = Color.Green,
                             style = MaterialTheme.typography.bodyLarge
                         )
@@ -167,7 +169,7 @@ fun DiagnosticsScreen(
                 }
                 ScanStatus.ERROR -> {
                     Text(
-                        text = "An error occurred. Please try again.",
+                        text = stringResource(R.string.error_diagnostics_scan_failed),
                         color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodyLarge
                     )
@@ -224,7 +226,7 @@ fun FaultCodeItem(code: DiagnosticTroubleCode) {
                     color = tintColor
                 )
                 Text(
-                    text = code.description ?: "Unknown Code",
+                    text = code.description ?: stringResource(R.string.dtc_unknown_description),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.pavloglez.xcan.core.model.ObdConstants
 
 @Singleton
 class SensorRepositoryImpl @Inject constructor() : SensorRepository {
@@ -41,8 +42,8 @@ class SensorRepositoryImpl @Inject constructor() : SensorRepository {
             pid = pid,
             displayName = "Unknown PID $pid",
             unit = "Raw",
-            expectedBytes = -1, // -1 signals we don't know the exact length, parse all available
-            formula = "RAW"
+            expectedBytes = ObdConstants.UNKNOWN_EXPECTED_BYTES, // -1 signals we don't know the exact length, parse all available
+            formula = ObdConstants.FORMULA_RAW
         )
     }
 

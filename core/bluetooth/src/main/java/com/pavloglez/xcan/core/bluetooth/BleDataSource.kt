@@ -4,7 +4,7 @@ import com.pavloglez.xcan.core.model.TelemetryFrame
 import kotlinx.coroutines.flow.Flow
 
 enum class ConnectionStatus {
-    DISCONNECTED, CONNECTING, CONNECTED
+    DISCONNECTED, CONNECTING, CONNECTED, ERROR
 }
 
 data class ScannedDevice(

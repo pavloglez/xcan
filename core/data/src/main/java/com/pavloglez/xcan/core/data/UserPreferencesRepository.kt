@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.map
 import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.pavloglez.xcan.core.model.ObdConstants
 
 @Singleton
 class UserPreferencesRepository @Inject constructor(
@@ -49,7 +50,7 @@ class UserPreferencesRepository @Inject constructor(
                 if (exception is IOException) emit(emptyPreferences()) else throw exception
             }
             .map { preferences ->
-                preferences[key] ?: setOf("010C", "010D", "0104", "0105")
+                preferences[key] ?: ObdConstants.DEFAULT_SELECTED_SENSORS
             }
     }
 

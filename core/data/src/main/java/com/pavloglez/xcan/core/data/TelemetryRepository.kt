@@ -28,6 +28,12 @@ class TelemetryRepository @Inject constructor(
         }
     }
 
+    suspend fun recordTelemetryBatch(frames: List<TelemetryFrame>) {
+        withContext(dispatchers.io) {
+            telemetryDao.insertTelemetries(frames.map { it.toEntity() })
+        }
+    }
+
     suspend fun pruneOldTelemetry(olderThanMs: Long) {
         withContext(dispatchers.io) {
             telemetryDao.deleteOldTelemetry(olderThanMs)

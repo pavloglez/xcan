@@ -41,7 +41,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import com.pavloglez.xcan.core.ui.LocalHazeState
 import dev.chrisbanes.haze.hazeSource
 import androidx.compose.ui.text.input.KeyboardType
@@ -61,6 +60,8 @@ import com.pavloglez.xcan.core.model.CarProfile
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import androidx.compose.ui.res.stringResource
+import com.pavloglez.xcan.core.ui.R
 
 @Composable
 fun MaintenanceRoute(
@@ -87,18 +88,18 @@ fun MaintenanceScreen(
         modifier = Modifier.fillMaxSize(),
         containerColor = DeepCharcoal,
         topBar = {
-            val title = if (state.activeCar != null) "Maintenance - ${state.activeCar.name}" else "Maintenance History"
+            val title = if (state.activeCar != null) stringResource(R.string.title_maintenance_car_format, state.activeCar.name) else stringResource(R.string.title_maintenance_history)
             GlassTopAppBar(title = title)
         }
     ) { innerPadding ->
         Box(modifier = Modifier.fillMaxSize()) {
             if (state.activeCar == null) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("Please select a vehicle on the Dashboard.", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f))
+                    Text(stringResource(R.string.msg_select_vehicle_on_dashboard), color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f))
                 }
             } else if (state.logs.isEmpty() && !state.isLoading) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("No logs found. Tap + to add.", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f))
+                    Text(stringResource(R.string.msg_no_maintenance_logs), color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f))
                 }
             } else {
                 LazyColumn(
@@ -126,7 +127,7 @@ fun MaintenanceScreen(
                         .padding(end = 24.dp, bottom = 140.dp)
                         .pressBounce(interactionSource)
                 ) {
-                    Icon(Icons.Filled.Add, contentDescription = "Add Log", tint = DeepCharcoal)
+                    Icon(Icons.Filled.Add, contentDescription = stringResource(R.string.cd_add_maintenance_log), tint = DeepCharcoal)
                 }
             }
             
@@ -157,32 +158,32 @@ fun AddMaintenanceLogDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Add Maintenance Log") },
+        title = { Text(stringResource(R.string.dialog_title_add_maintenance_log)) },
         text = {
             Column(modifier = Modifier.fillMaxWidth()) {
                 OutlinedTextField(
                     value = serviceType,
                     onValueChange = { serviceType = it },
-                    label = { Text("Service Type") },
+                    label = { Text(stringResource(R.string.label_service_type)) },
                     modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
                 )
                 OutlinedTextField(
                     value = notes,
                     onValueChange = { notes = it },
-                    label = { Text("Notes") },
+                    label = { Text(stringResource(R.string.label_notes)) },
                     modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
                 )
                 OutlinedTextField(
                     value = dtc,
                     onValueChange = { dtc = it },
-                    label = { Text("Related Fault Code (e.g. P0133)") },
+                    label = { Text(stringResource(R.string.label_related_fault_code_hint)) },
                     modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
                 )
-                val unitLabel = if (useMetric) "km" else "mi"
+                val unitLabel = if (useMetric) stringResource(R.string.unit_km) else stringResource(R.string.unit_mi)
                 OutlinedTextField(
                     value = mileageStr,
                     onValueChange = { mileageStr = it },
-                    label = { Text("Mileage ($unitLabel)") },
+                    label = { Text(stringResource(R.string.label_mileage_with_unit_format, unitLabel)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -196,12 +197,12 @@ fun AddMaintenanceLogDialog(
                     onConfirm(serviceType, notes, mileage, finalDtc)
                 }
             ) {
-                Text("Save")
+                Text(stringResource(R.string.action_save))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(R.string.action_cancel))
             }
         }
     )
@@ -287,7 +288,7 @@ fun TimelineMaintenanceLogItem(log: MaintenanceLog, useMetric: Boolean) {
                     modifier = Modifier.padding(top = 8.dp)
                 )
                 
-                val unitLabel = if (useMetric) "km" else "mi"
+                val unitLabel = if (useMetric) stringResource(R.string.unit_km) else stringResource(R.string.unit_mi)
                 Text(
                     text = "Mileage: ${log.mileage} $unitLabel",
                     color = MaterialTheme.colorScheme.onBackground,

@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -27,6 +26,8 @@ import com.pavloglez.xcan.core.ui.theme.DeepCharcoal
 import com.pavloglez.xcan.core.ui.theme.ElectricBlue
 import androidx.compose.ui.tooling.preview.Preview
 import com.pavloglez.xcan.core.ui.theme.XCanTheme
+import androidx.compose.ui.res.stringResource
+import com.pavloglez.xcan.core.ui.R
 
 @Composable
 fun ConfigRoute(
@@ -49,7 +50,7 @@ fun ConfigScreen(
         modifier = Modifier.fillMaxSize(),
         containerColor = DeepCharcoal,
         topBar = {
-            GlassTopAppBar(title = "ECU Configuration")
+            GlassTopAppBar(title = stringResource(R.string.title_ecu_configuration))
         }
     ) { innerPadding ->
         Box(
@@ -73,12 +74,12 @@ fun ConfigScreen(
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "Use Metric Units",
+                    text = stringResource(R.string.pref_use_metric_title),
                     style = MaterialTheme.typography.headlineMedium,
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = "Show speed in KM/H instead of MPH",
+                    text = stringResource(R.string.pref_use_metric_summary),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onBackground
                 )

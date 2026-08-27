@@ -1,6 +1,5 @@
 package com.pavloglez.xcan.core.ui
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -13,6 +12,7 @@ import androidx.compose.ui.unit.dp
 import com.pavloglez.xcan.core.ui.theme.DeepCharcoal
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.hazeEffect
+import com.pavloglez.xcan.core.ui.theme.XCanTokens
 
 /**
  * Reusable LocalHazeState so multiple screens can share it or we can pass it down.

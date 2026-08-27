@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
@@ -50,6 +49,8 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.concurrent.TimeUnit
+import androidx.compose.ui.res.stringResource
+import com.pavloglez.xcan.core.ui.R
 
 
 private val ChartColors = listOf(
@@ -81,7 +82,7 @@ fun LogSessionDetailScreen(
         modifier = modifier.fillMaxSize(),
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
-            val title = if (state.session != null) "${state.session.carLabel} Session" else "Log Session"
+            val title = if (state.session != null) stringResource(R.string.title_car_session_format, state.session.carLabel) else stringResource(R.string.title_log_session_detail)
             GlassTopAppBar(title = title)
         }
     ) { innerPadding ->
@@ -120,7 +121,7 @@ fun LogSessionDetailScreen(
                 }
             } else if (state.entriesByPid.isEmpty()) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("No data recorded in this session", color = MaterialTheme.colorScheme.onBackground)
+                    Text(stringResource(R.string.msg_no_data_recorded_session), color = MaterialTheme.colorScheme.onBackground)
                 }
             } else {
                 LazyColumn(
@@ -202,9 +203,9 @@ private fun MetricChart(
         Spacer(Modifier.height(4.dp))
 
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            StatChip("Min", "%.1f".format(minVal), color)
-            StatChip("Avg", "%.1f".format(avgVal), color)
-            StatChip("Max", "%.1f".format(maxVal), color)
+            StatChip(stringResource(R.string.stat_min), "%.1f".format(minVal), color)
+            StatChip(stringResource(R.string.stat_avg), "%.1f".format(avgVal), color)
+            StatChip(stringResource(R.string.stat_max), "%.1f".format(maxVal), color)
         }
 
         Spacer(Modifier.height(12.dp))

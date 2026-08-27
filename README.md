@@ -10,13 +10,15 @@ This project follows a clean multi-module architecture adhering to MVI (Model-Vi
 
 - `:app` - Main application container, Hilt DI setup, and global navigation.
 - `:core:model` - Pure data classes, entities, and domain objects shared across modules.
-- `:core:data` - Data access layer, repositories, Room databases, and DataStore preferences.
+- `:core:database` - Room Database, defining entities and Data Access Objects (DAOs).
+- `:core:data` - Data access layer, repositories orchestrating between database/network, and DataStore preferences.
 - `:core:network` - API client and Retrofit configuration (mocked for offline-first approach).
 - `:core:bluetooth` - Kable integration for BLE operations, OBD2 protocol parsing, and ECU interaction.
 - `:core:ui` - Reusable Compose UI components (dials, gauges, theming).
 - `:feature:dashboard` - Real-time telemetry dashboard.
 - `:feature:diagnostics` - DTC (Diagnostic Trouble Code) scanning and clearing.
 - `:feature:config` - Global app settings, unit preferences, and BLE device management.
+- `:feature:logging` - Tracking telemetry session logs and data logging.
 - `:feature:maintenance` - Service interval tracking.
 
 *(Note: Please refer to the `README.md` located inside each specific module directory for detailed documentation about that module's specific responsibilities and architecture).*

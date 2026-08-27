@@ -9,11 +9,11 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import com.pavloglez.xcan.core.model.ObdConstants
 
 data class ConnectionState(
     val connectionStatus: ConnectionStatus = ConnectionStatus.DISCONNECTED,
@@ -41,7 +41,7 @@ class ConnectionViewModel @Inject constructor(
         _isScanning
     ) { status, logs, devices, scanning ->
         ConnectionState(status, logs, devices, scanning)
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ConnectionState())
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(ObdConstants.STOP_TIMEOUT_MS), ConnectionState())
 
     init {
         viewModelScope.launch {

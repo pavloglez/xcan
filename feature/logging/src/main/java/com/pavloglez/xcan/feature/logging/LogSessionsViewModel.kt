@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import com.pavloglez.xcan.core.model.ObdConstants
 
 data class LogSessionsState(
     val sessions: List<LogSession> = emptyList(),
@@ -36,7 +37,7 @@ class LogSessionsViewModel @Inject constructor(
         }
         .stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
+            started = SharingStarted.WhileSubscribed(ObdConstants.STOP_TIMEOUT_MS),
             initialValue = LogSessionsState()
         )
 

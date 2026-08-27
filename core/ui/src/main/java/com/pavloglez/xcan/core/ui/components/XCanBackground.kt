@@ -6,8 +6,8 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Brush
+import com.pavloglez.xcan.core.ui.theme.XCanTokens
 
 @Composable
 fun XCanBackground(
@@ -20,7 +20,7 @@ fun XCanBackground(
             brush = Brush.verticalGradient(
                 colors = listOf(
                     MaterialTheme.colorScheme.background,
-                    MaterialTheme.colorScheme.background.copy(alpha = 0.8f)
+                    MaterialTheme.colorScheme.background.copy(alpha = XCanTokens.GradientEndAlpha)
                 )
             )
         )

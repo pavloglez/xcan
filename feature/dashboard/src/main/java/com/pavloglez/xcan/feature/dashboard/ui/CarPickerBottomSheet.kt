@@ -1,6 +1,5 @@
 package com.pavloglez.xcan.feature.dashboard.ui
 
-import androidx.compose.foundation.clickable
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,14 +22,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pavloglez.xcan.core.model.CarProfile
 import com.pavloglez.xcan.core.ui.components.bounceClick
 import com.pavloglez.xcan.core.ui.components.pressBounce
+import androidx.compose.ui.res.stringResource
+import com.pavloglez.xcan.core.ui.R
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -54,14 +53,14 @@ fun CarPickerBottomSheet(
                 .padding(horizontal = 16.dp)
         ) {
             Text(
-                text = "Select Vehicle",
+                text = stringResource(R.string.sheet_title_select_vehicle),
                 color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Bold,
                 fontSize = 18.sp
             )
             Spacer(Modifier.height(4.dp))
             Text(
-                text = "Choose which car to log this session for",
+                text = stringResource(R.string.sheet_subtitle_select_vehicle_logging),
                 color = MaterialTheme.colorScheme.onBackground,
                 fontSize = 13.sp
             )

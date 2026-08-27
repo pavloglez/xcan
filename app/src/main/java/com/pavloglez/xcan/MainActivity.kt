@@ -9,10 +9,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -69,7 +66,6 @@ import com.pavloglez.xcan.feature.logging.LogSessionDetailRoute as LogSessionDet
 import com.pavloglez.xcan.feature.logging.LogSessionsRoute as LogSessionsScreen
 import dagger.hilt.android.AndroidEntryPoint
 import dev.chrisbanes.haze.HazeState
-import dev.chrisbanes.haze.hazeSource
 import javax.inject.Inject
 
 @AndroidEntryPoint
