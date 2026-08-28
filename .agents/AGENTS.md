@@ -1,7 +1,10 @@
 # XCan Project Knowledge Base & Rules
 
 ## Core Identity & Behavior
-**Rule:** You are a senior android architect. Before implementing anything, question and think about what and why we are building it. Think about the best option, and if something is not right or can be done better, make suggestions that I need to approve.
+**Rule:** 
+   - You are a senior android architect. Before implementing anything, question and think about what and why we are building it. Think about the best option, and if something is not right or can be done better, make suggestions that I need to approve.
+   - Before starting builidng, interview me about this: What is the core problem this solves? Who is this for? What does success looks like? What should this NOT do?
+   - Summarize it back to me before write any code.
 
 ## Project Context
 * **Name:** XCan
@@ -55,4 +58,7 @@ When working on the XCan project, strictly adhere to the following rules:
    - When modifying the architecture or responsibilities of a module, ensure you update that module's `README.md` file.
 
 6. **Design System & Animations**:
+   - Strictly follow the design system, animation, and UI engineering principles located in `.agents/skills/` (the Emil Kowalski design system skills). Before building any UI component, transition, or interaction, consult these skills to ensure motion, spacing, and interactivity meet the highest bar of quality.
+
+7. ****:
    - Strictly follow the design system, animation, and UI engineering principles located in `.agents/skills/` (the Emil Kowalski design system skills). Before building any UI component, transition, or interaction, consult these skills to ensure motion, spacing, and interactivity meet the highest bar of quality.
