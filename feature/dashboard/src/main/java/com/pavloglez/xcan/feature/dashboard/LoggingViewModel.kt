@@ -33,7 +33,8 @@ class LoggingViewModel @Inject constructor(
         viewModelScope.launch {
             val sessionId = loggingRepository.startSession(carId, carLabel)
             val startMs = System.currentTimeMillis()
-            context.startService(
+            androidx.core.content.ContextCompat.startForegroundService(
+                context,
                 LoggingService.startIntent(context, sessionId, carLabel, startMs)
             )
         }

@@ -138,10 +138,14 @@ fun DashboardRoute(
     val carPickerSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-        listOf(
+        val list = mutableListOf(
             Manifest.permission.BLUETOOTH_SCAN,
             Manifest.permission.BLUETOOTH_CONNECT
         )
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            list.add(Manifest.permission.POST_NOTIFICATIONS)
+        }
+        list
     } else {
         listOf(
             Manifest.permission.ACCESS_FINE_LOCATION,
@@ -150,7 +154,7 @@ fun DashboardRoute(
     }
 
     val hasPermissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-        androidx.core.content.ContextCompat.checkSelfPermission(
+        val hasBluetooth = androidx.core.content.ContextCompat.checkSelfPermission(
             context,
             Manifest.permission.BLUETOOTH_SCAN
         ) == android.content.pm.PackageManager.PERMISSION_GRANTED &&
@@ -158,6 +162,13 @@ fun DashboardRoute(
                     context,
                     Manifest.permission.BLUETOOTH_CONNECT
                 ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+        val hasNotification = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            androidx.core.content.ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+        } else true
+        hasBluetooth && hasNotification
     } else {
         androidx.core.content.ContextCompat.checkSelfPermission(
             context,
@@ -174,8 +185,12 @@ fun DashboardRoute(
         contract = ActivityResultContracts.RequestMultiplePermissions(),
         onResult = { result ->
             val hasRequired = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                result[Manifest.permission.BLUETOOTH_SCAN] == true &&
+                val bluetoothOk = result[Manifest.permission.BLUETOOTH_SCAN] == true &&
                         result[Manifest.permission.BLUETOOTH_CONNECT] == true
+                val notificationOk = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    result[Manifest.permission.POST_NOTIFICATIONS] == true
+                } else true
+                bluetoothOk && notificationOk
             } else {
                 result[Manifest.permission.ACCESS_FINE_LOCATION] == true ||
                         result[Manifest.permission.ACCESS_COARSE_LOCATION] == true
