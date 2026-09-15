@@ -1,13 +1,27 @@
 # Configuration Feature Module (`:feature:config`)
 
-The `:feature:config` module provides the settings and preferences interface for the application.
+The `:feature:config` module provides the user interface and logic for managing application settings, measurement units, and user preferences.
 
 ## Architecture Role
-- **MVI Architecture**: Managed by `ConfigViewModel`, exposing states such as unit preferences (Metric/Imperial).
-- **Settings UI**: Exposes a Compose screen for users to toggle settings. It directly manipulates the `UserPreferencesRepository` in `:core:data`.
-- **Dynamic Application State**: Changes made here immediately propagate to features like `:feature:dashboard` and `:feature:maintenance` to dynamically adjust UI labels and unit conversions.
+
+### MVI Architecture
+- **`ConfigViewModel`**:
+  - **State (`ConfigState`)**: Exposes reactive preference flags such as `useMetric: Boolean` backed by Jetpack DataStore.
+  - **Intents (`ConfigIntent`)**:
+    - `ToggleMetric(Boolean)`: Dispatches preference updates to `UserPreferencesRepository`.
+
+### Dynamic Reactive Propagation
+- Toggling unit preferences immediately propagates downstream via Kotlin `Flow`s across all feature modules:
+  - **`:feature:dashboard`**: Converts telemetry dial ranges and digital readouts between km/h & mph, °C & °F, and kPa & psi in real-time.
+  - **`:feature:logging`**: Adapts chart axes and telemetry entry table units.
+  - **`:feature:maintenance`**: Converts historical odometer readings and intervals between kilometers and miles.
+
+### UI Styling (`ConfigScreen`)
+- Displays preference toggles using customized Material 3 `Switch` components accented with `ElectricBlue`.
+- Integrates frosted glassmorphism via `GlassTopAppBar` and `LocalHazeState`.
 
 ## Dependencies
 - `:core:data`
 - `:core:ui`
 - `:core:model`
+
