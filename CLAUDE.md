@@ -12,6 +12,9 @@ When working on this project, you MUST read and adhere to the established projec
 3. **`.agents/skills/`**
    When working on UI components, transitions, or animations, consult the skill files located in this directory for the required Emil Kowalski design system and UI engineering principles.
 
+4. **`DESIGN.md`**
+   The Google Stitch-compliant visual design system specification containing machine-readable tokens (colors, typography, rounded, spacing, components) and design rationale. All new UI must comply with this contract.
+
 ## Development & Verification Standards:
 - **Test Command:** Always verify changes with `./gradlew test --daemon`.
 - **Architectural Pattern:** Unidirectional Data Flow (MVI) with `StateFlow` and pure immutable state.

@@ -30,6 +30,7 @@
 * **Theme:** Technical, high-performance aesthetic.
 * **Colors:** Deep charcoal gray backgrounds with electric blue/neon accents and light gray text.
 * **Custom Elements:** Real-time vehicle telemetry visualized through custom-drawn Canvas circular gauges and digital readouts.
+* **Design System Specification:** See [`DESIGN.md`](../DESIGN.md) for Google Stitch-compliant design tokens, typography, and component guidelines.
 
 ## Current Status (As of September 2026)
 * **Completed:**
