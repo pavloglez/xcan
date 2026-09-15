@@ -1,6 +1,15 @@
 # XCan - Vehicle Diagnostics & Telemetry Dashboard
 
-XCan is an offline-first, highly scalable, and reactive Android application designed for real-time vehicle maintenance and OBD2 diagnostic operations.
+XCan is an offline-first and reactive Android application designed for real-time vehicle maintenance and OBD2 diagnostic operations.
+
+|  |  |
+| ------------- | ------------- |
+| <img width="1272" height="2772" alt="Screenshot_2026-09-15-16-06-47-06_25b065d89fc63dcc79b4748f92127b83" src="https://github.com/user-attachments/assets/ce44567a-f890-422b-890f-4bf4a5c2a5db" /> | <img width="1272" height="2772" alt="Screenshot_2026-09-15-16-07-03-82_25b065d89fc63dcc79b4748f92127b83" src="https://github.com/user-attachments/assets/b84d963e-b241-4761-acb0-fe83f57544b1" /> | 
+<img width="1272" height="2772" alt="Screenshot_2026-09-15-16-06-54-75_25b065d89fc63dcc79b4748f92127b83" src="https://github.com/user-attachments/assets/a86219ce-5ac2-489d-b16d-8a8ede911505" />  | <img width="1272" height="2772" alt="Screenshot_2026-09-15-16-07-10-73_25b065d89fc63dcc79b4748f92127b83" src="https://github.com/user-attachments/assets/9a4e0d03-884f-4139-a0d0-d060d0a63fb6" />  |
+
+
+
+
 
 ## Architecture
 
