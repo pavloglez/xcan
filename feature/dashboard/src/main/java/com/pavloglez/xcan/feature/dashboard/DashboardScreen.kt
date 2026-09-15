@@ -120,6 +120,7 @@ fun DashboardRoute(
             activeCar = carState.activeCar,
             useMetric = dashboardState.useMetric,
             supportedSensors = dashboardState.supportedSensors,
+            sensorScanStatus = dashboardState.sensorScanStatus,
             selectedSensors = dashboardState.selectedSensors,
             allKnownSensors = dashboardState.allKnownSensors,
             loggingState = loggingViewState.loggingState,
@@ -332,11 +333,16 @@ fun DashboardRoute(
         com.pavloglez.xcan.feature.dashboard.ui.DashboardConfigBottomSheet(
             allSensors = state.supportedSensors,
             selectedPids = state.selectedSensors,
+            sensorScanStatus = state.sensorScanStatus,
+            isConnected = state.isConnected,
             sheetState = configSheetState,
             onToggleSensor = { pid, checked ->
                 val newSet =
                     if (checked) state.selectedSensors + pid else state.selectedSensors - pid
                 viewModel.setSelectedSensors(newSet)
+            },
+            onRescan = {
+                viewModel.scanSensors(forceRescan = true)
             },
             onDismiss = { showConfigSheet = false }
         )

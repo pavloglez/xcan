@@ -54,6 +54,24 @@ class UserPreferencesRepository @Inject constructor(
             }
     }
 
+    fun getSupportedPids(carId: String?): Flow<Set<String>?> {
+        val key = if (carId == null) stringSetPreferencesKey("supported_pids_default") else stringSetPreferencesKey("supported_pids_$carId")
+        return dataStore.data
+            .catch { exception ->
+                if (exception is IOException) emit(emptyPreferences()) else throw exception
+            }
+            .map { preferences ->
+                preferences[key]
+            }
+    }
+
+    suspend fun setSupportedPids(carId: String?, pids: Set<String>) {
+        val key = if (carId == null) stringSetPreferencesKey("supported_pids_default") else stringSetPreferencesKey("supported_pids_$carId")
+        dataStore.edit { preferences ->
+            preferences[key] = pids
+        }
+    }
+
     suspend fun setSelectedSensors(carId: String?, sensors: Set<String>) {
         val key = if (carId == null) PreferencesKeys.SELECTED_SENSORS else stringSetPreferencesKey("selected_sensors_$carId")
         dataStore.edit { preferences ->

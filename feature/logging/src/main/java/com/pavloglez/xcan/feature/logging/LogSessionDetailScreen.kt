@@ -119,7 +119,7 @@ fun LogSessionDetailScreen(
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                 }
-            } else if (state.entriesByPid.isEmpty()) {
+            } else if (state.series.isEmpty()) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text(stringResource(R.string.msg_no_data_recorded_session), color = MaterialTheme.colorScheme.onBackground)
                 }
@@ -134,47 +134,47 @@ fun LogSessionDetailScreen(
                         bottom = innerPadding.calculateBottomPadding() + 16.dp
                     )
                 ) {
-                        itemsIndexed(
-                            items = state.entriesByPid.entries.toList(),
-                            key = { _, item -> item.key }
-                        ) { index, (pid, entries) ->
-                            val colorIndex = state.entriesByPid.keys.indexOf(pid) % ChartColors.size
-                            MetricChart(
-                                pid = pid,
-                                entries = entries,
-                                color = ChartColors[colorIndex],
-                                modifier = Modifier.staggerEnter(index)
-                            )
-                        }
+                    itemsIndexed(
+                        items = state.series,
+                        key = { _, item -> item.pid }
+                    ) { index, item ->
+                        val colorIndex = index % ChartColors.size
+                        MetricChart(
+                            metricSeries = item,
+                            color = ChartColors[colorIndex],
+                            modifier = Modifier.staggerEnter(index)
+                        )
                     }
                 }
             }
         }
     }
 }
+}
 
 @Composable
 private fun MetricChart(
-    pid: String,
-    entries: List<LogEntry>,
+    metricSeries: SensorMetricSeries,
     color: Color,
     modifier: Modifier = Modifier
 ) {
-    val modelProducer = remember(pid, entries) {
+    val modelProducer = remember(metricSeries.pid, metricSeries.entries) {
         CartesianChartModelProducer()
     }
     
-    androidx.compose.runtime.LaunchedEffect(pid, entries) {
-        val xValues = entries.mapIndexed { i, _ -> i.toFloat() }
-        val yValues = entries.map { it.value }
+    androidx.compose.runtime.LaunchedEffect(metricSeries.pid, metricSeries.entries) {
+        val xValues = metricSeries.entries.mapIndexed { i, _ -> i.toFloat() }
+        val yValues = metricSeries.entries.map { it.value }
         modelProducer.runTransaction {
             lineSeries { series(xValues, yValues) }
         }
     }
 
-    val minVal = entries.minOfOrNull { it.value } ?: 0f
-    val maxVal = entries.maxOfOrNull { it.value } ?: 0f
-    val avgVal = if (entries.isNotEmpty()) entries.sumOf { it.value.toDouble() }.toFloat() / entries.size else 0f
+    val minVal = metricSeries.entries.minOfOrNull { it.value } ?: 0f
+    val maxVal = metricSeries.entries.maxOfOrNull { it.value } ?: 0f
+    val avgVal = if (metricSeries.entries.isNotEmpty()) metricSeries.entries.sumOf { it.value.toDouble() }.toFloat() / metricSeries.entries.size else 0f
+
+    val unitSuffix = if (metricSeries.unit.isNotBlank() && metricSeries.unit.lowercase() != "raw") " ${metricSeries.unit}" else ""
 
     Column(
         modifier = modifier
@@ -187,25 +187,33 @@ private fun MetricChart(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
+            Column(modifier = Modifier.weight(1f, fill = false)) {
+                Text(
+                    text = metricSeries.displayName,
+                    color = color,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 15.sp
+                )
+                Text(
+                    text = metricSeries.pid,
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 11.sp
+                )
+            }
             Text(
-                text = pid,
-                color = color,
-                fontWeight = FontWeight.Bold,
-                fontSize = 14.sp
-            )
-            Text(
-                text = "${entries.size} pts",
+                text = "${metricSeries.entries.size} pts",
                 color = MaterialTheme.colorScheme.onBackground,
                 fontSize = 11.sp
             )
         }
 
-        Spacer(Modifier.height(4.dp))
+        Spacer(Modifier.height(8.dp))
 
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            StatChip(stringResource(R.string.stat_min), "%.1f".format(minVal), color)
-            StatChip(stringResource(R.string.stat_avg), "%.1f".format(avgVal), color)
-            StatChip(stringResource(R.string.stat_max), "%.1f".format(maxVal), color)
+            StatChip(stringResource(R.string.stat_min), "%.1f%s".format(minVal, unitSuffix), color)
+            StatChip(stringResource(R.string.stat_avg), "%.1f%s".format(avgVal, unitSuffix), color)
+            StatChip(stringResource(R.string.stat_max), "%.1f%s".format(maxVal, unitSuffix), color)
         }
 
         Spacer(Modifier.height(12.dp))

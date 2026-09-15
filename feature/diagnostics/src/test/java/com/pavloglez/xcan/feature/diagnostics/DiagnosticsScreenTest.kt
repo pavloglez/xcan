@@ -63,8 +63,8 @@ class DiagnosticsScreenTest {
             )
         }
 
-        composeTestRule.onNodeWithText("Scanning...").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Scanning...").assertIsNotEnabled() // Button should be disabled
+        composeTestRule.onNodeWithText("Scanning…").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Scanning…").assertIsNotEnabled() // Button should be disabled
     }
 
     @Test

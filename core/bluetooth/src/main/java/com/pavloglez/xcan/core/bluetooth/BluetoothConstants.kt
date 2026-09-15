@@ -14,11 +14,13 @@ object BluetoothConstants {
     const val CMD_PID_DISCOVERY_01_20 = "0100"
     const val CMD_PID_DISCOVERY_21_40 = "0120"
     const val CMD_PID_DISCOVERY_41_60 = "0140"
+    const val CMD_PID_DISCOVERY_61_80 = "0160"
 
     // Response prefixes for PID discovery
     const val RESP_PID_DISCOVERY_01_20 = "4100"
     const val RESP_PID_DISCOVERY_21_40 = "4120"
     const val RESP_PID_DISCOVERY_41_60 = "4140"
+    const val RESP_PID_DISCOVERY_61_80 = "4160"
 
     // --- Timing (ms) ---
     const val ELM_INIT_DELAY_MS = 500L

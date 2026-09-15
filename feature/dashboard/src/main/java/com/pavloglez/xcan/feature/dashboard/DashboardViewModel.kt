@@ -28,6 +28,7 @@ data class DashboardState(
     val telemetry: TelemetryFrame? = null,
     val useMetric: Boolean = false,
     val supportedSensors: List<ObdSensor> = emptyList(),
+    val sensorScanStatus: com.pavloglez.xcan.core.model.SensorScanStatus = com.pavloglez.xcan.core.model.SensorScanStatus.IDLE,
     val selectedSensors: Set<String> = emptySet(),
     val allKnownSensors: List<ObdSensor> = emptyList(),
     val isTrackMode: Boolean = false
@@ -66,7 +67,7 @@ class DashboardViewModel @Inject constructor(
         viewModelScope.launch {
             bleDataSource.connectionState.collect { status ->
                 if (status == ConnectionStatus.CONNECTED) {
-                    scanSensors()
+                    scanSensors(forceRescan = false)
                 }
             }
         }
@@ -77,6 +78,7 @@ class DashboardViewModel @Inject constructor(
         bleDataSource.telemetry,
         userPreferencesRepository.useMetric,
         _supportedSensors,
+        bleDataSource.sensorScanStatus,
         activeCarSelectedSensors,
         sensorRepository.getSensors(),
         _isTrackMode
@@ -85,9 +87,10 @@ class DashboardViewModel @Inject constructor(
             telemetry = args[0] as? TelemetryFrame,
             useMetric = args[1] as Boolean,
             supportedSensors = args[2] as List<ObdSensor>,
-            selectedSensors = args[3] as Set<String>,
-            allKnownSensors = args[4] as List<ObdSensor>,
-            isTrackMode = args[5] as Boolean
+            sensorScanStatus = args[3] as com.pavloglez.xcan.core.model.SensorScanStatus,
+            selectedSensors = args[4] as Set<String>,
+            allKnownSensors = args[5] as List<ObdSensor>,
+            isTrackMode = args[6] as Boolean
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(ObdConstants.STOP_TIMEOUT_MS), DashboardState())
 
@@ -98,9 +101,24 @@ class DashboardViewModel @Inject constructor(
         }
     }
 
-    private fun scanSensors() {
+    fun scanSensors(forceRescan: Boolean = false) {
         viewModelScope.launch {
-            _supportedSensors.value = bleDataSource.getSupportedSensors()
+            val activeCar = carRepository.getActiveCar().firstOrNull()
+            if (!forceRescan) {
+                val cachedPids = userPreferencesRepository.getSupportedPids(activeCar?.id).firstOrNull()
+                if (!cachedPids.isNullOrEmpty()) {
+                    val allKnown = sensorRepository.getSensors().firstOrNull() ?: emptyList()
+                    _supportedSensors.value = allKnown.filter { cachedPids.contains(it.pid) }
+                    return@launch
+                }
+            }
+
+            val discovered = bleDataSource.getSupportedSensors()
+            _supportedSensors.value = discovered
+            if (discovered.isNotEmpty()) {
+                val pidSet = discovered.map { it.pid }.toSet()
+                userPreferencesRepository.setSupportedPids(activeCar?.id, pidSet)
+            }
         }
     }
 

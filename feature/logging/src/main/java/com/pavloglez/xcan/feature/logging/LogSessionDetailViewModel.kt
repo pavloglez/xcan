@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.pavloglez.xcan.core.data.LoggingRepository
 import com.pavloglez.xcan.core.model.LogEntry
 import com.pavloglez.xcan.core.model.LogSession
+import com.pavloglez.xcan.core.model.SensorRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -14,27 +15,49 @@ import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 import com.pavloglez.xcan.core.model.ObdConstants
 
+data class SensorMetricSeries(
+    val pid: String,
+    val displayName: String,
+    val unit: String,
+    val entries: List<LogEntry>
+)
+
 data class LogSessionDetailState(
     val session: LogSession? = null,
-    val entriesByPid: Map<String, List<LogEntry>> = emptyMap(),
+    val series: List<SensorMetricSeries> = emptyList(),
     val isLoading: Boolean = true
-)
+) {
+    val entriesByPid: Map<String, List<LogEntry>>
+        get() = series.associate { it.pid to it.entries }
+}
 
 @HiltViewModel
 class LogSessionDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val loggingRepository: LoggingRepository
+    private val loggingRepository: LoggingRepository,
+    private val sensorRepository: SensorRepository
 ) : ViewModel() {
 
     private val sessionId: String = checkNotNull(savedStateHandle["sessionId"])
 
     val state: StateFlow<LogSessionDetailState> = combine(
         loggingRepository.getSessionById(sessionId),
-        loggingRepository.getEntriesForSession(sessionId)
-    ) { session, entries ->
+        loggingRepository.getEntriesForSession(sessionId),
+        sensorRepository.getSensors()
+    ) { session, entries, sensors ->
+        val sensorMap = sensors.associateBy { it.pid }
+        val metricSeries = entries.groupBy { it.pid }.map { (pid, logEntries) ->
+            val sensor = sensorMap[pid] ?: sensorRepository.getSensorByPidSync(pid)
+            SensorMetricSeries(
+                pid = pid,
+                displayName = sensor.displayName,
+                unit = sensor.unit,
+                entries = logEntries
+            )
+        }
         LogSessionDetailState(
             session = session,
-            entriesByPid = entries.groupBy { it.pid },
+            series = metricSeries,
             isLoading = false
         )
     }.stateIn(

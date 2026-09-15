@@ -76,6 +76,11 @@
     <string name="car_year_make_format">%1$d · %2$s</string>
     <string name="sheet_title_dashboard_widgets">Dashboard Widgets</string>
     <string name="sheet_subtitle_dashboard_widgets">Checked items appear on the dashboard and are logged automatically</string>
+    <string name="sheet_subtitle_scan_idle">Connect to a vehicle to scan available ECU sensors</string>
+    <string name="sheet_subtitle_scanning">Scanning ECU for supported sensors…</string>
+    <string name="sheet_subtitle_scan_complete">Found %1$d sensors supported by this vehicle</string>
+    <string name="sheet_subtitle_scan_failed">Could not read ECU capabilities · Showing known sensors</string>
+    <string name="btn_rescan_sensors">Rescan</string>
     <string name="sensor_pid_unit_format">%1$s · %2$s</string>
 
     <!-- Logging -->

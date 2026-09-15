@@ -61,6 +61,11 @@
     <string name="car_year_make_format">%1$d · %2$s</string>
     <string name="sheet_title_dashboard_widgets">Widgets del panel</string>
     <string name="sheet_subtitle_dashboard_widgets">Los elementos marcados aparecen en el panel y se registran automáticamente</string>
+    <string name="sheet_subtitle_scan_idle">Conéctate a un vehículo para escanear los sensores disponibles de la ECU</string>
+    <string name="sheet_subtitle_scanning">Escaneando ECU para sensores compatibles…</string>
+    <string name="sheet_subtitle_scan_complete">Se encontraron %1$d sensores compatibles con este vehículo</string>
+    <string name="sheet_subtitle_scan_failed">No se pudieron leer las capacidades de la ECU · Mostrando sensores conocidos</string>
+    <string name="btn_rescan_sensors">Reescanear</string>
     <string name="sensor_pid_unit_format">%1$s · %2$s</string>
 
     <!-- Logging -->

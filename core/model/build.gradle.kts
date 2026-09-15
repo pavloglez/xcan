@@ -19,4 +19,5 @@ android {
 dependencies {
     // Pure data classes, minimal dependencies.
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+    testImplementation(libs.junit)
 }

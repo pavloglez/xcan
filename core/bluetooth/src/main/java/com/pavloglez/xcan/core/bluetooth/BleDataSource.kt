@@ -14,6 +14,7 @@ data class ScannedDevice(
 
 interface BleDataSource {
     val connectionState: Flow<ConnectionStatus>
+    val sensorScanStatus: Flow<com.pavloglez.xcan.core.model.SensorScanStatus>
     val telemetry: Flow<TelemetryFrame>
     val connectionLogs: Flow<String>
     fun scanForDevices(): Flow<List<ScannedDevice>>

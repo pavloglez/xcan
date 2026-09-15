@@ -17,6 +17,7 @@ data class DashboardUIState(
     val activeCar: CarProfile? = null,
     val useMetric: Boolean = false,
     val supportedSensors: List<ObdSensor> = emptyList(),
+    val sensorScanStatus: com.pavloglez.xcan.core.model.SensorScanStatus = com.pavloglez.xcan.core.model.SensorScanStatus.IDLE,
     val selectedSensors: Set<String> = emptySet(),
     val allKnownSensors: List<ObdSensor> = emptyList(),
     val loggingState: LoggingState = LoggingState.Idle,

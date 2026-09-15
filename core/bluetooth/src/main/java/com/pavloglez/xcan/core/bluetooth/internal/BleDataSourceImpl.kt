@@ -12,6 +12,7 @@ import com.pavloglez.xcan.core.bluetooth.BluetoothConstants
 import com.pavloglez.xcan.core.bluetooth.ConnectionStatus
 import com.pavloglez.xcan.core.bluetooth.DtcParser
 import com.pavloglez.xcan.core.bluetooth.ObdParser
+import com.pavloglez.xcan.core.bluetooth.PidBitmapParser
 import com.pavloglez.xcan.core.bluetooth.ScannedDevice
 import com.pavloglez.xcan.core.model.DiagnosticTroubleCode
 import com.pavloglez.xcan.core.model.DispatcherProvider
@@ -70,6 +71,9 @@ class BleDataSourceImpl @Inject constructor(
 
     private val _connectionState = MutableStateFlow(ConnectionStatus.DISCONNECTED)
     override val connectionState: Flow<ConnectionStatus> = _connectionState.asStateFlow()
+
+    private val _sensorScanStatus = MutableStateFlow(com.pavloglez.xcan.core.model.SensorScanStatus.IDLE)
+    override val sensorScanStatus: Flow<com.pavloglez.xcan.core.model.SensorScanStatus> = _sensorScanStatus.asStateFlow()
 
     private val _telemetry = MutableStateFlow(TelemetryFrame("init", System.currentTimeMillis(), emptyMap()))
     override val telemetry: Flow<TelemetryFrame> = _telemetry.asStateFlow()
@@ -151,11 +155,13 @@ class BleDataSourceImpl @Inject constructor(
                 peripheral?.state?.first { it is State.Disconnected }
                 log("Lost connection to adapter.")
                 _connectionState.value = ConnectionStatus.DISCONNECTED
+                _sensorScanStatus.value = com.pavloglez.xcan.core.model.SensorScanStatus.IDLE
                 pollingJob?.cancel()
 
             } catch (e: Exception) {
                 log("Critical connection error: ${e.message}")
                 _connectionState.value = ConnectionStatus.ERROR
+                _sensorScanStatus.value = com.pavloglez.xcan.core.model.SensorScanStatus.FAILED
             }
         }
     }
@@ -216,6 +222,7 @@ class BleDataSourceImpl @Inject constructor(
             } finally {
                 peripheral = null
                 _connectionState.value = ConnectionStatus.DISCONNECTED
+                _sensorScanStatus.value = com.pavloglez.xcan.core.model.SensorScanStatus.IDLE
             }
         }
     }
@@ -290,7 +297,13 @@ class BleDataSourceImpl @Inject constructor(
     }
 
     override suspend fun getSupportedSensors(): List<ObdSensor> = coroutineScope {
-        val p = peripheral ?: return@coroutineScope emptyList()
+        val p = peripheral ?: run {
+            _sensorScanStatus.value = com.pavloglez.xcan.core.model.SensorScanStatus.IDLE
+            return@coroutineScope emptyList()
+        }
+        _sensorScanStatus.value = com.pavloglez.xcan.core.model.SensorScanStatus.SCANNING
+        log("Scanning ECU for supported sensors...")
+
         val rxCharacteristic = characteristicOf(
             ObdParser.OBD_SERVICE_UUID.toString(),
             ObdParser.OBD_RX_CHARACTERISTIC_UUID.toString(),
@@ -315,18 +328,51 @@ class BleDataSourceImpl @Inject constructor(
         }
 
         val discoveredPids = mutableSetOf<String>()
-        try {
-            // Service 01 Discovery
-            val pids1to20 = getResponseFor(BluetoothConstants.CMD_PID_DISCOVERY_01_20)
-            if ((pids1to20.startsWith(BluetoothConstants.RESP_PID_DISCOVERY_01_20)) && (pids1to20.length >= BluetoothConstants.MIN_PID_BITMAP_LENGTH)) {
-                // Simplified bitmap parsing for demonstration
-                // In production, we'd parse the full bitmap hex
-                discoveredPids.addAll(listOf("010C", "010D", "0104", "0105", "010F", "0110", "0111"))
-            }
-        } catch (e: Exception) {
-            log("Discovery failed: ${e.message}")
-        }
+        val discoveryBlocks = listOf(
+            Triple(BluetoothConstants.CMD_PID_DISCOVERY_01_20, BluetoothConstants.RESP_PID_DISCOVERY_01_20, 0x01),
+            Triple(BluetoothConstants.CMD_PID_DISCOVERY_21_40, BluetoothConstants.RESP_PID_DISCOVERY_21_40, 0x21),
+            Triple(BluetoothConstants.CMD_PID_DISCOVERY_41_60, BluetoothConstants.RESP_PID_DISCOVERY_41_60, 0x41),
+            Triple(BluetoothConstants.CMD_PID_DISCOVERY_61_80, BluetoothConstants.RESP_PID_DISCOVERY_61_80, 0x61)
+        )
 
-        sensorRepo.getSensors().first().filter { discoveredPids.contains(it.pid) }
+        try {
+            for ((cmd, respPrefix, startPid) in discoveryBlocks) {
+                val rawResponse = getResponseFor(cmd)
+                val cleanResponse = rawResponse.replace(" ", "")
+                    .replace("\r", "")
+                    .replace(">", "")
+                    .uppercase()
+
+                val prefixIndex = cleanResponse.indexOf(respPrefix)
+                if (prefixIndex != -1 && cleanResponse.length >= prefixIndex + respPrefix.length + 8) {
+                    val bitmapHex = cleanResponse.substring(
+                        prefixIndex + respPrefix.length,
+                        prefixIndex + respPrefix.length + 8
+                    )
+                    val blockPids = PidBitmapParser.parse(bitmapHex, startPid)
+                    discoveredPids.addAll(blockPids)
+                    log("Discovered ${blockPids.size} PIDs in range $cmd (bitmap: $bitmapHex)")
+
+                    // If bit 32 is not set, the ECU doesn't support the subsequent ranges
+                    if (!PidBitmapParser.hasNextRange(bitmapHex)) {
+                        break
+                    }
+                } else {
+                    // No valid response or ECU doesn't support this range
+                    break
+                }
+            }
+
+            val allKnown = sensorRepo.getSensors().first()
+            val supported = allKnown.filter { discoveredPids.contains(it.pid) }
+            log("ECU discovery complete: ${supported.size} supported sensors match known catalog.")
+            _sensorScanStatus.value = com.pavloglez.xcan.core.model.SensorScanStatus.COMPLETED
+            supported
+        } catch (e: Exception) {
+            log("Discovery failed or timed out: ${e.message}")
+            _sensorScanStatus.value = com.pavloglez.xcan.core.model.SensorScanStatus.FAILED
+            // Graceful fallback: if scan fails, return default predefined sensors
+            sensorRepo.getSensors().first()
+        }
     }
 }

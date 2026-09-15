@@ -64,8 +64,8 @@ class DashboardScreenTest {
             )
         }
 
-        composeTestRule.onNodeWithText("Connecting...").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Connecting...").assertIsNotEnabled()
+        composeTestRule.onNodeWithText("Connecting…").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Connecting…").assertIsNotEnabled()
     }
 
     @Test
