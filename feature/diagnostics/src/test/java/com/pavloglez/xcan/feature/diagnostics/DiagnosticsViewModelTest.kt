@@ -1,5 +1,9 @@
 package com.pavloglez.xcan.feature.diagnostics
 
+import com.pavloglez.xcan.feature.diagnostics.presentation.DiagnosticsIntent
+import com.pavloglez.xcan.feature.diagnostics.presentation.DiagnosticsViewModel
+import com.pavloglez.xcan.feature.diagnostics.presentation.ScanStatus
+
 import app.cash.turbine.test
 import com.pavloglez.xcan.core.bluetooth.BleDataSource
 import com.pavloglez.xcan.core.bluetooth.ConnectionStatus

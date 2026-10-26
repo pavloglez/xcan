@@ -1,5 +1,7 @@
 package com.pavloglez.xcan.feature.dashboard
 
+import com.pavloglez.xcan.feature.dashboard.presentation.DashboardUIState
+
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule

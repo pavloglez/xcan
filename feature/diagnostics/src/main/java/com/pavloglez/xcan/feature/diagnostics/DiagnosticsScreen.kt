@@ -1,5 +1,10 @@
 package com.pavloglez.xcan.feature.diagnostics
 
+import com.pavloglez.xcan.feature.diagnostics.presentation.DiagnosticsIntent
+import com.pavloglez.xcan.feature.diagnostics.presentation.DiagnosticsState
+import com.pavloglez.xcan.feature.diagnostics.presentation.DiagnosticsViewModel
+import com.pavloglez.xcan.feature.diagnostics.presentation.ScanStatus
+
 import androidx.compose.foundation.background
 import androidx.compose.material3.MaterialTheme
 import com.pavloglez.xcan.core.ui.components.pressBounce

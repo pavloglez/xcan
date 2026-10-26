@@ -4,6 +4,9 @@ The `:feature:config` module provides the user interface and logic for managing 
 
 ## Architecture Role
 
+### Presentation Layer (`presentation/`)
+All ViewModels, UI state contracts, and intents are housed in the `com.pavloglez.xcan.feature.config.presentation` package.
+
 ### MVI Architecture
 - **`ConfigViewModel`**:
   - **State (`ConfigState`)**: Exposes reactive preference flags such as `useMetric: Boolean` backed by Jetpack DataStore.

@@ -1,4 +1,4 @@
-package com.pavloglez.xcan.feature.dashboard
+package com.pavloglez.xcan.feature.dashboard.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -9,6 +9,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -34,7 +35,7 @@ class ConnectionViewModel @Inject constructor(
     private var scanningJob: Job? = null
     private val _connectionLogs = MutableStateFlow<List<String>>(emptyList())
 
-    val state = combine(
+    val state: StateFlow<ConnectionState> = combine(
         bleDataSource.connectionState,
         _connectionLogs,
         _discoveredDevices,

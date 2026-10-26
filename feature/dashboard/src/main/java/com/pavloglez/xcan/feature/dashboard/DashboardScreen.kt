@@ -1,5 +1,14 @@
 package com.pavloglez.xcan.feature.dashboard
 
+import com.pavloglez.xcan.feature.dashboard.presentation.CarProfileEffect
+import com.pavloglez.xcan.feature.dashboard.presentation.CarProfileViewModel
+import com.pavloglez.xcan.feature.dashboard.presentation.ConnectionViewModel
+import com.pavloglez.xcan.feature.dashboard.presentation.DashboardEffect
+import com.pavloglez.xcan.feature.dashboard.presentation.DashboardState
+import com.pavloglez.xcan.feature.dashboard.presentation.DashboardUIState
+import com.pavloglez.xcan.feature.dashboard.presentation.DashboardViewModel
+import com.pavloglez.xcan.feature.dashboard.presentation.LoggingViewModel
+
 import com.pavloglez.xcan.core.model.ObdConstants
 import androidx.compose.ui.res.stringResource
 import com.pavloglez.xcan.core.ui.R

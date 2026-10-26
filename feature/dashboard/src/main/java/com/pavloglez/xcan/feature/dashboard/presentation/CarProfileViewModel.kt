@@ -1,4 +1,4 @@
-package com.pavloglez.xcan.feature.dashboard
+package com.pavloglez.xcan.feature.dashboard.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -8,6 +8,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -32,7 +33,7 @@ class CarProfileViewModel @Inject constructor(
 
     private val _effect = Channel<CarProfileEffect>()
 
-    val state = combine(
+    val state: StateFlow<CarProfileState> = combine(
         carRepository.getAllCars(),
         carRepository.getActiveCar()
     ) { cars, activeCar ->

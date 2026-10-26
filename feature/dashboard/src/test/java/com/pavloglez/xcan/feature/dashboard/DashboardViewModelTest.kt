@@ -1,5 +1,9 @@
 package com.pavloglez.xcan.feature.dashboard
 
+import com.pavloglez.xcan.feature.dashboard.presentation.DashboardEffect
+import com.pavloglez.xcan.feature.dashboard.presentation.DashboardState
+import com.pavloglez.xcan.feature.dashboard.presentation.DashboardViewModel
+
 import app.cash.turbine.test
 import com.pavloglez.xcan.core.bluetooth.BleDataSource
 import com.pavloglez.xcan.core.bluetooth.ConnectionStatus

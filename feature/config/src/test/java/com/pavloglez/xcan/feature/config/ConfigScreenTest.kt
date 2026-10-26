@@ -1,5 +1,7 @@
 package com.pavloglez.xcan.feature.config
 
+import com.pavloglez.xcan.feature.config.presentation.ConfigState
+
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn

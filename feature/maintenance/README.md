@@ -4,6 +4,9 @@ The `:feature:maintenance` module provides the user interface and logic for mana
 
 ## Architecture Role
 
+### Presentation Layer (`presentation/`)
+All ViewModels, UI state contracts, and intents are housed in the `com.pavloglez.xcan.feature.maintenance.presentation` package.
+
 ### MVI Architecture
 - **`MaintenanceViewModel`**:
   - **State (`MaintenanceState`)**: Reactively combines streams from `MaintenanceRepository`, `CarRepository`, and `UserPreferencesRepository` to supply `logs`, `activeCar`, `useMetric`, and `isLoading`.

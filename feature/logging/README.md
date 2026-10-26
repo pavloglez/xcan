@@ -4,6 +4,9 @@ The `:feature:logging` module provides the user interface and presentation logic
 
 ## Architecture Role
 
+### Presentation Layer (`presentation/`)
+All ViewModels, UI state contracts, and intents are housed in the `com.pavloglez.xcan.feature.logging.presentation` package.
+
 ### MVI Architecture
 - **`LogSessionsViewModel`**:
   - **State (`LogSessionsState`)**: Manages the reactive list of `LogSession` objects, loading indicators, and delete confirmation dialog visibility.

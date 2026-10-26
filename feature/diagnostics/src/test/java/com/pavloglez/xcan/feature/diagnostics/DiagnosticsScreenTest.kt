@@ -1,5 +1,8 @@
 package com.pavloglez.xcan.feature.diagnostics
 
+import com.pavloglez.xcan.feature.diagnostics.presentation.DiagnosticsState
+import com.pavloglez.xcan.feature.diagnostics.presentation.ScanStatus
+
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule

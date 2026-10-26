@@ -1,4 +1,4 @@
-package com.pavloglez.xcan.feature.dashboard
+package com.pavloglez.xcan.feature.dashboard.presentation
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
@@ -9,6 +9,7 @@ import com.pavloglez.xcan.core.data.LoggingState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -25,7 +26,7 @@ class LoggingViewModel @Inject constructor(
     private val loggingRepository: LoggingRepository
 ) : ViewModel() {
 
-    val state = LoggingService.loggingState.map {
+    val state: StateFlow<LoggingViewState> = LoggingService.loggingState.map {
         LoggingViewState(it)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(ObdConstants.STOP_TIMEOUT_MS), LoggingViewState())
 

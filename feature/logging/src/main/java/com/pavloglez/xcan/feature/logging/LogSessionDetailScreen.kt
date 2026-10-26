@@ -1,5 +1,9 @@
 package com.pavloglez.xcan.feature.logging
 
+import com.pavloglez.xcan.feature.logging.presentation.LogSessionDetailState
+import com.pavloglez.xcan.feature.logging.presentation.LogSessionDetailViewModel
+import com.pavloglez.xcan.feature.logging.presentation.SensorMetricSeries
+
 import androidx.compose.foundation.background
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.foundation.layout.Arrangement

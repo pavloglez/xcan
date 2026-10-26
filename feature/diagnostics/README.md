@@ -4,6 +4,9 @@ The `:feature:diagnostics` module provides the user interface and business logic
 
 ## Architecture Role
 
+### Presentation Layer (`presentation/`)
+All ViewModels, UI state contracts, and intents are housed in the `com.pavloglez.xcan.feature.diagnostics.presentation` package.
+
 ### MVI Architecture
 - **`DiagnosticsViewModel`**:
   - **State (`DiagnosticsState`)**: Combines reactive streams from `BleDataSource` to track `connectionStatus`, `scanStatus` (`IDLE`, `SCANNING`, `CLEARING`, `SUCCESS`, `ERROR`), and `faultCodes`. Exposes `isConnected`.

@@ -26,6 +26,7 @@ vico = "2.1.2"
 haze = "1.7.2"
 navigation = "2.8.0"
 kotlinxSerialization = "1.7.1"
+konsist = "0.17.2"
 
 [libraries]
 sqlcipher = { module = "net.zetetic:sqlcipher-android", version.ref = "sqlcipher" }
@@ -68,6 +69,7 @@ vico-compose = { group = "com.patrykandpatrick.vico", name = "compose", version.
 vico-compose-m3 = { group = "com.patrykandpatrick.vico", name = "compose-m3", version.ref = "vico" }
 haze = { group = "dev.chrisbanes.haze", name = "haze", version.ref = "haze" }
 navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigation" }
+konsist = { module = "com.lemonappdev:konsist", version.ref = "konsist" }
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

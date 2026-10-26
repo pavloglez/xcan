@@ -1,4 +1,4 @@
-package com.pavloglez.xcan.feature.config
+package com.pavloglez.xcan.feature.config.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

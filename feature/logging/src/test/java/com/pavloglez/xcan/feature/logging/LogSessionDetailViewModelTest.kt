@@ -1,5 +1,7 @@
 package com.pavloglez.xcan.feature.logging
 
+import com.pavloglez.xcan.feature.logging.presentation.LogSessionDetailViewModel
+
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.pavloglez.xcan.core.data.LoggingRepository

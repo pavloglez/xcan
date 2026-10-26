@@ -4,6 +4,9 @@ The `:feature:dashboard` module is the primary cockpit interface of XCan, presen
 
 ## Architecture Role
 
+### Presentation Layer (`presentation/`)
+All ViewModels, UI state contracts, and intents are housed inside the `com.pavloglez.xcan.feature.dashboard.presentation` package and guarded by automated Konsist Clean Architecture assertions (`KonsistArchitectureTest`).
+
 ### Multi-ViewModel Architecture
 - **`DashboardViewModel`**:
   - Exposes `DashboardUIState` tracking active telemetry values (Speed, RPM, Coolant Temp, Boost, Engine Load, Throttle).

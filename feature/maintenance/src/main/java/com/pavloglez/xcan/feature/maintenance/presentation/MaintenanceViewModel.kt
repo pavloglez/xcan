@@ -1,4 +1,4 @@
-package com.pavloglez.xcan.feature.maintenance
+package com.pavloglez.xcan.feature.maintenance.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

@@ -1,5 +1,8 @@
 package com.pavloglez.xcan.feature.logging
 
+import com.pavloglez.xcan.feature.logging.presentation.LogSessionDetailState
+import com.pavloglez.xcan.feature.logging.presentation.SensorMetricSeries
+
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText

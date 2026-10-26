@@ -1,4 +1,4 @@
-package com.pavloglez.xcan.feature.dashboard
+package com.pavloglez.xcan.feature.dashboard.presentation
 
 import com.pavloglez.xcan.core.bluetooth.ConnectionStatus
 import com.pavloglez.xcan.core.bluetooth.ScannedDevice

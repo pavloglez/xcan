@@ -1,4 +1,4 @@
-package com.pavloglez.xcan.feature.dashboard
+package com.pavloglez.xcan.feature.dashboard.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -15,6 +15,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.firstOrNull
@@ -74,7 +75,7 @@ class DashboardViewModel @Inject constructor(
     }
 
     @Suppress("UNCHECKED_CAST")
-    val state = combine(
+    val state: StateFlow<DashboardState> = combine(
         bleDataSource.telemetry,
         userPreferencesRepository.useMetric,
         _supportedSensors,
