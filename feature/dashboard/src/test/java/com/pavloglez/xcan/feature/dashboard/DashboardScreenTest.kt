@@ -2,6 +2,9 @@ package com.pavloglez.xcan.feature.dashboard
 
 import com.pavloglez.xcan.feature.dashboard.presentation.DashboardUIState
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -10,6 +13,7 @@ import androidx.compose.ui.test.performClick
 import com.pavloglez.xcan.core.bluetooth.ConnectionStatus
 import com.pavloglez.xcan.core.model.ObdSensor
 import com.pavloglez.xcan.core.model.TelemetryFrame
+import com.pavloglez.xcan.core.ui.theme.ElectricBlue
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -109,5 +113,29 @@ class DashboardScreenTest {
         
         composeTestRule.onNodeWithText("Speed").assertIsDisplayed()
         composeTestRule.onNodeWithText("50").assertIsDisplayed()
+    }
+
+    @Test
+    fun telemetryDial_displaysTitleValueAndLabelAcrossRotations() {
+        var currentAngle by mutableFloatStateOf(0f)
+        composeTestRule.setContent {
+            TelemetryDial(
+                title = "Engine RPM",
+                value = 4200f,
+                maxValue = 8000f,
+                label = "rpm",
+                color = ElectricBlue,
+                rotationAngle = currentAngle
+            )
+        }
+
+        val testAngles = listOf(0f, -90f, 90f, 180f)
+        for (angle in testAngles) {
+            currentAngle = angle
+            composeTestRule.waitForIdle()
+            composeTestRule.onNodeWithText("Engine RPM").assertIsDisplayed()
+            composeTestRule.onNodeWithText("4200").assertIsDisplayed()
+            composeTestRule.onNodeWithText("rpm").assertIsDisplayed()
+        }
     }
 }

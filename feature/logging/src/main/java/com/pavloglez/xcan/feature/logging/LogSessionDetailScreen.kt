@@ -38,6 +38,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.pavloglez.xcan.core.model.LogEntry
 import com.pavloglez.xcan.core.ui.components.GlassTopAppBar
 import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
+import com.patrykandpatrick.vico.compose.cartesian.axis.rememberAxisLabelComponent
 import com.patrykandpatrick.vico.compose.cartesian.axis.rememberBottom
 import com.patrykandpatrick.vico.compose.cartesian.axis.rememberStart
 import com.patrykandpatrick.vico.compose.cartesian.layer.rememberLine
@@ -222,6 +223,8 @@ private fun MetricChart(
 
         Spacer(Modifier.height(12.dp))
 
+        val axisLabel = rememberAxisLabelComponent(color = MaterialTheme.colorScheme.onSurface)
+
         CartesianChartHost(
             chart = rememberCartesianChart(
                 rememberLineCartesianLayer(
@@ -231,8 +234,8 @@ private fun MetricChart(
                         )
                     )
                 ),
-                startAxis = VerticalAxis.rememberStart(),
-                bottomAxis = HorizontalAxis.rememberBottom()
+                startAxis = VerticalAxis.rememberStart(label = axisLabel),
+                bottomAxis = HorizontalAxis.rememberBottom(label = axisLabel)
             ),
             modelProducer = modelProducer,
             modifier = Modifier

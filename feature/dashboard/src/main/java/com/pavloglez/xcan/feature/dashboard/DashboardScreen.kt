@@ -79,7 +79,10 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.drawscope.clipPath
+import androidx.compose.ui.graphics.graphicsLayer
+import com.pavloglez.xcan.feature.dashboard.ui.rememberDialRotation
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -460,6 +463,7 @@ fun DashboardScreen(
     onStopLog: () -> Unit,
     onToggleTrackMode: () -> Unit
 ) {
+    val dialRotation by rememberDialRotation()
     val neonRed = Color(0xFFFF2D55)
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -618,6 +622,7 @@ fun DashboardScreen(
                             label = unit,
                             color = ElectricBlue,
                             isTrackMode = state.isTrackMode,
+                            rotationAngle = dialRotation,
                             modifier = Modifier.staggerEnter(index)
                         )
                     }
@@ -701,6 +706,7 @@ fun TelemetryDial(
     label: String,
     color: Color,
     isTrackMode: Boolean = false,
+    rotationAngle: Float = 0f,
     modifier: Modifier = Modifier
 ) {
     val animatedValue by animateFloatAsState(
@@ -716,7 +722,8 @@ fun TelemetryDial(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .aspectRatio(1f),
+                .aspectRatio(1f)
+                .graphicsLayer { rotationZ = rotationAngle },
             contentAlignment = Alignment.Center
         ) {
             Canvas(modifier = Modifier.fillMaxSize()) {
@@ -871,16 +878,20 @@ fun TelemetryDial(
                     fontWeight = if (isTrackMode) FontWeight.Bold else FontWeight.Normal
                 )
             }
-        } // Closes the Box
 
-        Text(
-            text = title,
-            color = MaterialTheme.colorScheme.onBackground,
-            fontSize = if (isTrackMode) 20.sp else 16.sp,
-            fontWeight = if (isTrackMode) FontWeight.Bold else FontWeight.Medium,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-    } // Closes the outer Column
+            Text(
+                text = title,
+                color = MaterialTheme.colorScheme.onBackground,
+                fontSize = if (isTrackMode) 16.sp else 13.sp,
+                fontWeight = if (isTrackMode) FontWeight.Bold else FontWeight.Medium,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 6.dp)
+            )
+        }
+    }
 }
 
 
